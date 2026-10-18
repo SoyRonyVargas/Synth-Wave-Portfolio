@@ -1,0 +1,50 @@
+[
+  {
+    "n": 1,
+    "title": "Addons para CRM",
+    "client": "Upnify",
+    "year": "2024–2026",
+    "tag": "20 addons. 3,000+ usuarios. Un CRM que no dejó de crecer.",
+    "desc": "Cerca de 20 addons que ampliaron un CRM con más de 3,000 usuarios, más el módulo de tareas con tableros Kanban, checklists y notificaciones.",
+    "link": null,
+    "stack": "NODE.JS · REACT · SQL SERVER",
+    "hasLink": false,
+    "noLink": true
+  },
+  {
+    "n": 2,
+    "title": "Oferta Educativa Quintana Roo",
+    "client": "UPQROO",
+    "year": "2023",
+    "tag": "Orientación vocacional para todo el estado.",
+    "desc": "Plataforma del gobierno estatal para la orientación vocacional de estudiantes. Frontend, backend, base de datos, despliegues, seguridad, SEO y analítica.",
+    "link": null,
+    "stack": "VUE.JS · NEST.JS · MYSQL",
+    "hasLink": false,
+    "noLink": true
+  },
+  {
+    "n": 3,
+    "title": "Editor de sitios drag & drop",
+    "client": "Hiplot",
+    "year": "2021–2022",
+    "tag": "Arrastra, suelta, publica. Sin escribir código.",
+    "desc": "Editor tipo WordPress para Hiplot: la empresa modifica su página web arrastrando y soltando bloques, sin escribir código.",
+    "link": null,
+    "stack": "REACT · NEXT.JS",
+    "hasLink": false,
+    "noLink": true
+  },
+  {
+    "n": 4,
+    "title": "Portafolio personal",
+    "client": "Proyecto personal",
+    "year": "Personal",
+    "tag": "Una sola página, contenido desde un JSON.",
+    "desc": "Sitio de una sola página en HTML y Tailwind CSS, con un modal de experiencia que se llena desde un archivo JSON.",
+    "link": "https://soyronyvargas.netlify.app",
+    "stack": "HTML · TAILWIND · JSON",
+    "hasLink": true,
+    "noLink": false
+  }
+]

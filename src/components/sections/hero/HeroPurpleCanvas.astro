@@ -1,0 +1,184 @@
+---
+// Hero morado en Canvas 2D (/home9): sol amarillo, montañas low-poly moradas, palmeras moradas y camino con neón amarillo.
+// Proyección en unidades del viewBox 1440×900 (horizonte y=520, cámara a 1 de altura, foco 380).
+---
+<canvas class="rw-hero-scene" data-purple-canvas aria-hidden="true"></canvas>
+<script>
+  const hero = document.getElementById('inicio');
+  const cv = hero?.querySelector('[data-purple-canvas]');
+  if (hero && cv) {
+    const ctx = cv.getContext('2d');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const frozen = new URLSearchParams(location.search).has('poster');
+
+    const SPEED = 6, ROAD = 1.3, MT_IN = 3.1;
+    const PALM_X = 2.25, PALM_DZ = 4, PALM_N = 16, PALM_H = 3.4, SPAN = PALM_DZ * PALM_N;
+    const DZ = 1.2, ZFAR = 55;
+    let seed = 5;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const palms = [];
+    for (const side of [-1, 1])
+      for (let i = 0; i < PALM_N; i++)
+        palms.push({ side, off: i * PALM_DZ + (side > 0 ? PALM_DZ / 2 : 0) + rnd(), k: 0.9 + rnd() * 0.45, dx: rnd() * 0.3 });
+
+    // columnas de montaña (solo a los lados del camino)
+    const SIDE = []; for (let k = 0, x = MT_IN; k < 16; k++, x = x * 1.25 + 0.3) SIDE.push(x);
+    const MXS = [...SIDE.map((x) => -x).reverse(), ...SIDE], HALF = MXS.length / 2;
+    const hash = (a, b) => { let h = (a * 374761393 + b * 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
+    const mtH = (c, j) => { const ax = Math.abs(MXS[c]); return Math.min(1, (ax - MT_IN) / 1.4) * (1 + ax * 0.32) * (0.3 + 0.7 * hash(c, j)); };
+
+    let W = 0, H = 0, dpr = 1, sp = 1, ox = 0, oy = 0;
+    const resize = () => {
+      const r = hero.getBoundingClientRect();
+      dpr = Math.min(devicePixelRatio || 1, 1.5); W = r.width; H = r.height;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      sp = Math.max(W / 1440, H / 900); ox = (W - 1440 * sp) / 2; oy = H - 900 * sp;
+    };
+    const PX = (vx) => ox + vx * sp, PY = (vy) => oy + vy * sp;
+    const load = (src) => new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.src = src; });
+
+    // sol amarillo con franjas (canvas aparte para recortar las franjas)
+    const sunC = document.createElement('canvas'), sg = sunC.getContext('2d');
+    function paintSun(t) {
+      const r = 230 * sp, S = Math.ceil(r * 2);
+      if (sunC.width !== S) { sunC.width = S; sunC.height = S; }
+      sg.clearRect(0, 0, S, S);
+      const g = sg.createLinearGradient(0, 0, 0, S);
+      g.addColorStop(0, '#fff79e'); g.addColorStop(0.45, '#ffd640'); g.addColorStop(0.72, '#ff9a40'); g.addColorStop(1, '#ff59c0');
+      sg.fillStyle = g; sg.beginPath(); sg.arc(r, r, r, 0, Math.PI * 2); sg.fill();
+      sg.globalCompositeOperation = 'destination-out';
+      const ph = (t * 0.45) % 1;
+      for (let i = 0; i < 11; i++) { const v = (i + ph) / 11, gh = (2 + v * 15) * sp; sg.fillRect(0, r * 0.85 + v * r * 1.15 - gh / 2, S, gh); }
+      sg.globalCompositeOperation = 'source-over';
+    }
+    function drawSun(t) {
+      const r = 230 * sp, cx = PX(720), cy = PY(410);
+      const halo = ctx.createRadialGradient(cx, cy, r * 0.7, cx, cy, r * 1.8);
+      halo.addColorStop(0, `rgba(255,170,230,${0.5 + 0.1 * Math.sin(t * 1.3)})`); halo.addColorStop(1, 'rgba(255,120,230,0)');
+      ctx.fillStyle = halo; ctx.fillRect(cx - r * 2, cy - r * 2, r * 4, r * 4);
+      ctx.drawImage(sunC, cx - r, cy - r);
+    }
+
+    function palmList(travel) {
+      const out = [];
+      for (const p of palms) {
+        const d = (((p.off - travel) % SPAN) + SPAN) % SPAN - 3;
+        if (d < 0.35) continue;
+        out.push({ d, side: p.side, x: PX(720 + (p.side * (PALM_X + p.dx) * 380) / d), y: PY(520 + 380 / d), h: (PALM_H * p.k * 380) / d * sp, a: Math.min(1, Math.max(0, (SPAN * 0.95 - d) / (SPAN * 0.23))) });
+      }
+      return out.sort((a, b) => b.d - a.d);
+    }
+    function drawPalm(img, q, mirror) {
+      const w = (q.h * img.width) / img.height;
+      ctx.save(); ctx.globalAlpha *= q.a; ctx.translate(q.x, q.y); ctx.scale(-q.side, mirror ? -1 : 1);
+      ctx.drawImage(img, -w * 0.47, -q.h, w, q.h); ctx.restore();
+    }
+
+    function drawFloor(travel) {
+      const hy = PY(520), vx = PX(720);
+      // cuadrícula amarilla entre el camino y las montañas
+      ctx.strokeStyle = 'rgba(255,210,70,.85)'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (const s of [-1, 1]) for (let k = 0; k <= 3; k++) { ctx.moveTo(vx, hy); ctx.lineTo(PX(720 + s * 380 * (ROAD + 0.9 * k)), PY(900)); }
+      ctx.stroke();
+      const lt = travel % 2.4;
+      for (let i = 1; i <= 24; i++) {
+        const d = i * 2.4 - lt, y = PY(520 + 380 / d), a = Math.max(0, Math.min(1, 1 - d / 40, (d - 0.3) * 3));
+        if (a <= 0 || y > H) continue;
+        const x0 = (ROAD * 380) / d * sp, x1 = ((MT_IN + 0.6) * 380) / d * sp;
+        ctx.fillStyle = `rgba(255,190,60,${0.3 * a})`; ctx.fillRect(vx - x1, y - 3, x1 - x0, 6); ctx.fillRect(vx + x0, y - 3, x1 - x0, 6);
+        ctx.fillStyle = `rgba(255,220,90,${a})`; ctx.fillRect(vx - x1, y - 1, x1 - x0, 2); ctx.fillRect(vx + x0, y - 1, x1 - x0, 2);
+      }
+      // camino oscuro brillante
+      const bl = PX(720 - ROAD * 380), br = PX(720 + ROAD * 380), by = PY(900);
+      const rg = ctx.createLinearGradient(0, hy, 0, H); rg.addColorStop(0, 'rgba(60,20,110,.8)'); rg.addColorStop(1, 'rgba(12,4,30,.85)');
+      ctx.fillStyle = rg; ctx.beginPath(); ctx.moveTo(vx, hy); ctx.lineTo(bl, by); ctx.lineTo(br, by); ctx.closePath(); ctx.fill();
+      // rayas amarillas: centro y orillas
+      const dash = (xw, period, len, phase, half) => {
+        const tt = (travel + phase) % period;
+        for (let i = 1; i <= 18; i++) {
+          const dn = i * period - 2 - tt, df = dn + len;
+          if (dn < 0.4) continue;
+          const yn = PY(520 + 380 / dn), yf = PY(520 + 380 / df);
+          ctx.beginPath();
+          ctx.moveTo(PX(720 + ((xw - half) * 380) / df), yf); ctx.lineTo(PX(720 + ((xw + half) * 380) / df), yf);
+          ctx.lineTo(PX(720 + ((xw + half) * 380) / dn), yn); ctx.lineTo(PX(720 + ((xw - half) * 380) / dn), yn);
+          ctx.closePath(); ctx.fill();
+        }
+      };
+      ctx.shadowColor = '#ffb020'; ctx.shadowBlur = 12; ctx.fillStyle = '#ffe36a';
+      dash(0, 3.2, 1.6, 0, 0.05);
+      dash(-(ROAD - 0.12), 4, 2.2, 1, 0.06); dash(ROAD - 0.12, 4, 2.2, 1, 0.06);
+      ctx.shadowBlur = 0;
+      // brillo del horizonte
+      const gl = ctx.createLinearGradient(0, hy - 30, 0, hy + 30);
+      gl.addColorStop(0, 'rgba(255,150,240,0)'); gl.addColorStop(0.5, 'rgba(255,170,240,.6)'); gl.addColorStop(1, 'rgba(255,150,240,0)');
+      ctx.fillStyle = gl; ctx.fillRect(0, hy - 30, W, 60);
+    }
+
+    // montañas: filas de lejos a cerca; cada cara se sombrea según su inclinación
+    const X = new Float32Array(MXS.length * 2), Y = new Float32Array(MXS.length * 2), Hh = new Float32Array(MXS.length * 2);
+    function project(j, slot, travel) {
+      const d = j * DZ - travel, k = (380 / d) * sp, o = slot * MXS.length;
+      for (let c = 0; c < MXS.length; c++) { const h = mtH(c, j); Hh[o + c] = h; X[o + c] = PX(720) + MXS[c] * k; Y[o + c] = PY(520 + 380 / d) - h * k; }
+      return d;
+    }
+    function drawMountains(travel) {
+      const n = MXS.length;
+      const jFar = Math.floor((travel + ZFAR) / DZ), jNear = Math.ceil((travel + 0.8) / DZ);
+      let df = project(jFar, 0, travel);
+      for (let j = jFar - 1; j >= jNear - 1; j--) {
+        project(j, 1, travel);
+        const fog = Math.min(1, Math.max(0, (df - 30) / (ZFAR - 30)));
+        const edge = new Path2D();
+        for (let c = 0; c < n - 1; c++) {
+          if (c === HALF - 1) continue;
+          const slope = (Hh[c] + Hh[c + 1]) - (Hh[n + c] + Hh[n + c + 1]); // cara que mira al sol (atrás) = positiva
+          const side = (Hh[n + c + 1] - Hh[n + c]) * Math.sign(MXS[c]);
+          const lit = Math.max(0, Math.min(1, 0.45 + side * 0.25 - slope * 0.15));
+          const rim = Math.max(0, Math.min(1, slope * 0.35));
+          const r = 34 + 90 * lit + 200 * rim, g = 10 + 55 * lit + 150 * rim, b = 76 + 140 * lit + 20 * rim;
+          const fr = r + (190 - r) * fog, fg = g + (90 - g) * fog, fb = b + (230 - b) * fog;
+          ctx.fillStyle = `rgb(${fr | 0},${fg | 0},${fb | 0})`;
+          ctx.beginPath(); ctx.moveTo(X[c], Y[c]); ctx.lineTo(X[c + 1], Y[c + 1]); ctx.lineTo(X[n + c + 1], Y[n + c + 1]); ctx.lineTo(X[n + c], Y[n + c]); ctx.closePath(); ctx.fill();
+          edge.moveTo(X[c], Y[c]); edge.lineTo(X[c + 1], Y[c + 1]); edge.lineTo(X[n + c + 1], Y[n + c + 1]); edge.lineTo(X[n + c], Y[n + c]); edge.closePath();
+        }
+        ctx.strokeStyle = `rgba(236,210,255,${0.75 * (1 - fog * 0.7)})`; ctx.lineWidth = 1.2; ctx.stroke(edge);
+        X.copyWithin(0, n, 2 * n); Y.copyWithin(0, n, 2 * n); Hh.copyWithin(0, n, 2 * n); df = j * DZ - travel;
+      }
+    }
+
+    load('/assets/palm-violet.webp').then((palm) => {
+      let t = 0, travel = 0, last = 0;
+      function frame(now) {
+        const dt = frozen ? 0 : Math.min(0.05, (now - (last || now)) / 1000); last = now;
+        t += dt; travel += dt * SPEED;
+        const hy = PY(520);
+        paintSun(t);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+        const list = palmList(travel);
+        ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, hy); ctx.clip(); drawSun(t); ctx.restore();
+        // reflejos
+        ctx.save(); ctx.beginPath(); ctx.rect(0, hy, W, H - hy); ctx.clip();
+        ctx.fillStyle = '#1a0838'; ctx.fillRect(0, hy, W, H - hy);
+        ctx.globalAlpha = 0.4; ctx.save(); ctx.translate(0, 2 * hy); ctx.scale(1, -1); drawSun(t); ctx.restore();
+        ctx.globalAlpha = 0.35; for (const q of list) drawPalm(palm, q, true);
+        ctx.restore();
+        drawFloor(travel);
+        drawMountains(travel);
+        for (const q of list) drawPalm(palm, q, false);
+      }
+      let raf = 0, visible = true;
+      const loop = (now) => { frame(now); raf = visible ? requestAnimationFrame(loop) : 0; };
+      resize();
+      new ResizeObserver(() => { resize(); if (reduce || frozen) frame(0); }).observe(hero);
+      frame(0);
+      hero.classList.add('rw-scene-on');
+      if (!reduce && !frozen) {
+        raf = requestAnimationFrame(loop);
+        new IntersectionObserver(([en]) => { visible = en.isIntersecting; if (visible && !raf) { last = 0; raf = requestAnimationFrame(loop); } }).observe(hero);
+      }
+    });
+  }
+</script>

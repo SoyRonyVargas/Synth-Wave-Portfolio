@@ -1,0 +1,83 @@
+[
+  {
+    "name": "BACKEND",
+    "col": "#ff2fb3",
+    "items": [
+      "Node.js",
+      "Express",
+      "Nest.js",
+      ".NET",
+      "APIs REST",
+      "GraphQL",
+      "WebSockets",
+      "Python (Flask)",
+      "PHP"
+    ],
+    "used": "Upnify · UPQROO · Hiplot"
+  },
+  {
+    "name": "FRONTEND",
+    "col": "#3ff0ff",
+    "items": [
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Next.js",
+      "Redux",
+      "Vue.js",
+      "Angular",
+      "HTML5",
+      "CSS3",
+      "Tailwind",
+      "Bootstrap"
+    ],
+    "used": "Upnify · Freelance · Hiplot · UPQROO"
+  },
+  {
+    "name": "BASES DE DATOS",
+    "col": "#fff27a",
+    "items": [
+      "SQL Server",
+      "MySQL",
+      "PostgreSQL",
+      "MongoDB"
+    ],
+    "used": "Upnify · Hiplot · UPQROO"
+  },
+  {
+    "name": "INTEGRACIONES",
+    "col": "#b26bff",
+    "items": [
+      "Meta Graph API",
+      "WhatsApp Business API",
+      "TikTok Lead Ads",
+      "OpenAI API",
+      "OAuth 2.0",
+      "Webhooks"
+    ],
+    "used": "Upnify"
+  },
+  {
+    "name": "CALIDAD Y DEVOPS",
+    "col": "#7dffcf",
+    "items": [
+      "Git",
+      "Jest",
+      "GitHub Actions",
+      "SonarCloud",
+      "Postman"
+    ],
+    "used": "Hiplot · Upnify"
+  },
+  {
+    "name": "OTROS",
+    "col": "#ff9a5a",
+    "items": [
+      "SEO",
+      "Google Analytics",
+      "WordPress",
+      "IA en el desarrollo"
+    ],
+    "used": "UPQROO · Freelance"
+  }
+]

@@ -1,0 +1,63 @@
+---
+// Variante GSAP del hero (/home2): anima las mismas capas SVG/CSS de la v5 con GSAP.
+---
+<script>
+  const hero = document.getElementById('inicio');
+  if (hero && hero.dataset.variant === 'gsap' && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    import('gsap').then(({ gsap }) => {
+      const q = (s) => hero.querySelector(s);
+      const [stars, sun, mts] = hero.querySelectorAll('.rw-par');
+      const copies = [...hero.querySelectorAll('[data-mt]')];
+      const car = q('.rw-car');
+      car.style.animation = 'none';
+
+      // entrada: el sol sale del horizonte y las montañas suben
+      gsap.from(sun, { y: 150, duration: 2.6, ease: 'power3.out' });
+      gsap.from(mts, { y: 90, opacity: 0, duration: 1.8, ease: 'power2.out', delay: 0.2 });
+
+      // sol: franjas que bajan + halo que respira + un leve "latido"
+      gsap.to(q('.rw-hsun-run'), { '--sun-y': '26px', duration: 1.4, ease: 'none', repeat: -1 });
+      gsap.fromTo(q('.rw-sun-halo'), { opacity: 0.65, scale: 0.92 }, { opacity: 1, scale: 1.08, duration: 2.2, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+      gsap.to(q('.rw-hsun-run'), { scale: 1.025, duration: 1.1, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+
+      // piso: mismo bucle de la v5, ahora con GSAP
+      gsap.fromTo(q('.rw-floor-run'), { scale: 1 }, { scale: 1.25, duration: 0.55, ease: 'none', repeat: -1 });
+
+      // montañas: dos copias desfasadas que crecen desde el punto de fuga (se acercan) y se relevan;
+      // la más cercana va encima y se desvanece cuando ya "pasó" junto al coche
+      const D = 7, S0 = 0.8, S1 = 1.45;
+      const set = copies.map((el) => ({ el, scale: gsap.quickSetter(el, 'scale'), op: gsap.quickSetter(el, 'opacity') }));
+      let t = 0, on = true;
+      gsap.ticker.add((_, dt) => {
+        if (!on) return;
+        t += Math.min(dt, 50) / 1000;
+        set.forEach((c, i) => {
+          const p = (t / D + i / set.length) % 1;
+          c.scale(S0 * Math.pow(S1 / S0, p)); // crecimiento exponencial = velocidad constante en perspectiva
+          c.op(p < 0.25 ? p / 0.25 : p > 0.82 ? (1 - p) / 0.18 : 1);
+          c.el.style.zIndex = String(Math.round(p * 100));
+        });
+      });
+
+      // auto: rebote rápido + vaivén lento, como si siguiera el camino
+      gsap.to(car, { y: -3, duration: 0.35, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+      gsap.to(car, { x: 10, rotation: 0.8, duration: 2.6, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+
+      // paralaje con el mouse (quickTo = suavizado barato)
+      const px = [[stars, 6], [sun, 12], [mts, 22]].map(([el, d]) => [gsap.quickTo(el, 'x', { duration: 0.9, ease: 'power3' }), d]);
+      hero.addEventListener('mousemove', (e) => {
+        const r = hero.getBoundingClientRect();
+        const mx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+        px.forEach(([to, d]) => to(-mx * d));
+      });
+      hero.addEventListener('mouseleave', () => px.forEach(([to]) => to(0)));
+
+      // fuera de pantalla se pausa todo
+      new IntersectionObserver(([en]) => {
+        on = en.isIntersecting;
+        if (on) gsap.globalTimeline.resume();
+        else gsap.globalTimeline.pause();
+      }).observe(hero);
+    });
+  }
+</script>

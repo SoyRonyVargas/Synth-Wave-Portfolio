@@ -1,0 +1,127 @@
+---
+// Variante Canvas 2D del hero (/home3): pseudo-3D estilo Outrun dibujado a mano, sin librerías.
+// El cielo es transparente: se ven el degradado y las estrellas CSS de la v5 detrás.
+---
+<canvas class="rw-hero-scene" data-hero-canvas aria-hidden="true"></canvas>
+<script>
+  const hero = document.getElementById('inicio');
+  const cv = hero?.querySelector('[data-hero-canvas]');
+  if (hero && cv) {
+    const ctx = cv.getContext('2d');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // columnas del mundo: camino de -1 a 1 (cada 0.25) y montañas cada vez más anchas hacia los lados
+    const ROAD = 1, DZ = 0.6, ZNEAR = 0.7, ZFAR = 32, CAMH = 1, SPEED = 3.3;
+    const side = []; for (let k = 1, x = ROAD; k <= 20; k++) { x *= 1.22; side.push(x); }
+    const XS = [...side.map((x) => -x).reverse(), -1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, ...side];
+    const hash = (a, b) => { let h = (a * 374761393 + b * 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
+    const height = (c, j) => {
+      const ax = Math.abs(XS[c]);
+      if (ax <= ROAD) return 0;
+      const ramp = Math.min(1, (ax - ROAD) / 2) ** 1.2;
+      return ramp * ax * 0.42 * (0.35 + 0.65 * hash(c, j));
+    };
+
+    let W = 0, H = 0, dpr = 1, cx = 0, hy = 0, f = 0, s = 1;
+    const resize = () => {
+      const r = hero.getBoundingClientRect();
+      dpr = Math.min(devicePixelRatio || 1, 1.5);
+      W = r.width; H = r.height;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      s = Math.max(W / 1440, H / 900); // mismo encuadre que los SVG (xMidYMax slice)
+      cx = W / 2; hy = H - 380 * s; f = (H - hy) / CAMH;
+    };
+
+    let travel = 0, camX = 0, mx = 0, last = 0, t = 0;
+    const X = new Float32Array(XS.length * 2), Y = new Float32Array(XS.length * 2); // fila lejana / cercana
+
+    function drawSun() {
+      const r = 150 * s, sy = hy - 134 * s, sx = cx - camX * 40 * s;
+      ctx.save();
+      ctx.beginPath(); ctx.rect(0, 0, W, hy); ctx.clip();
+      // cuerpo
+      const g = ctx.createLinearGradient(0, sy - r, 0, sy + r);
+      g.addColorStop(0, '#ffd23f'); g.addColorStop(0.4, '#ffa23a'); g.addColorStop(0.7, '#ff5a8a'); g.addColorStop(1, '#ff2fd0');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2); ctx.fill();
+      // franjas que bajan y se engrosan hacia abajo
+      ctx.globalCompositeOperation = 'destination-out';
+      const ph = (t * 0.55) % 1;
+      for (let i = 0; i < 7; i++) {
+        const v = (i + ph) / 7;
+        const gh = (1.5 + v * 13) * s;
+        ctx.fillRect(sx - r, sy + v * r - gh / 2, r * 2, gh);
+      }
+      // halo detrás
+      ctx.globalCompositeOperation = 'destination-over';
+      const pulse = 0.82 + 0.18 * Math.sin(t * 1.4);
+      const halo = ctx.createRadialGradient(sx, sy, r * 0.6, sx, sy, r * 2.3);
+      halo.addColorStop(0, `rgba(255,90,150,${0.55 * pulse})`); halo.addColorStop(0.45, `rgba(255,47,208,${0.18 * pulse})`); halo.addColorStop(1, 'rgba(255,47,208,0)');
+      ctx.fillStyle = halo; ctx.fillRect(sx - r * 2.3, sy - r * 2.3, r * 4.6, r * 4.6);
+      ctx.restore();
+    }
+
+    function project(j, slot) {
+      const z = j * DZ - travel;
+      const k = f / z, yb = hy + CAMH * k, o = slot * XS.length;
+      for (let c = 0; c < XS.length; c++) { X[o + c] = cx + (XS[c] - camX) * k; Y[o + c] = yb - height(c, j) * k; }
+      return z;
+    }
+
+    function drawTerrain() {
+      const n = XS.length, roadA = XS.indexOf(-1), roadB = XS.indexOf(1);
+      const jFar = Math.floor((travel + ZFAR) / DZ), jNear = Math.ceil((travel + ZNEAR) / DZ);
+      let zf = project(jFar, 0);
+      for (let j = jFar - 1; j >= jNear - 1; j--) {
+        const zn = project(j, 1);
+        const fade = Math.min(1, Math.max(0, (ZFAR - zf) / 10)); // las filas lejanas aparecen con niebla
+        // montañas: relleno oscuro + aristas azules
+        ctx.beginPath();
+        for (let c = 0; c < n - 1; c++) {
+          if (c >= roadA && c < roadB) continue;
+          ctx.moveTo(X[c], Y[c]); ctx.lineTo(X[c + 1], Y[c + 1]); ctx.lineTo(X[n + c + 1], Y[n + c + 1]); ctx.lineTo(X[n + c], Y[n + c]); ctx.closePath();
+        }
+        ctx.fillStyle = '#07082a'; ctx.fill();
+        ctx.globalAlpha = fade * 0.25; ctx.lineWidth = 4; ctx.strokeStyle = '#3b9bff'; ctx.stroke();
+        ctx.globalAlpha = fade; ctx.lineWidth = 1.3; ctx.stroke();
+        // camino: cuadrícula rosa con brillo
+        ctx.beginPath();
+        ctx.moveTo(X[n + roadA], Y[n + roadA]); ctx.lineTo(X[n + roadB], Y[n + roadB]);
+        for (let c = roadA; c <= roadB; c++) { ctx.moveTo(X[c], Y[c]); ctx.lineTo(X[n + c], Y[n + c]); }
+        ctx.strokeStyle = '#ff3fd8';
+        ctx.globalAlpha = fade * 0.3; ctx.lineWidth = 7; ctx.stroke();
+        ctx.globalAlpha = fade; ctx.lineWidth = 2.2; ctx.stroke();
+        ctx.globalAlpha = 1;
+        X.copyWithin(0, n, 2 * n); Y.copyWithin(0, n, 2 * n); zf = zn;
+      }
+    }
+
+    function frame(now) {
+      const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now; t += dt;
+      travel += dt * SPEED;
+      camX += (mx * 0.35 - camX) * Math.min(1, dt * 3);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#12021f'; ctx.fillRect(0, hy, W, H - hy); // suelo
+      drawSun();
+      // línea de horizonte y bruma (antes del terreno: las montañas la tapan)
+      const hz = ctx.createLinearGradient(0, hy - 40 * s, 0, hy + 30 * s);
+      hz.addColorStop(0, 'rgba(255,47,208,0)'); hz.addColorStop(0.55, 'rgba(255,90,200,.28)'); hz.addColorStop(1, 'rgba(255,47,208,0)');
+      ctx.fillStyle = hz; ctx.fillRect(0, hy - 40 * s, W, 70 * s);
+      ctx.fillStyle = '#ff9ff0'; ctx.fillRect(0, hy - 1, W, 2);
+      drawTerrain();
+    }
+
+    let raf = 0, visible = true;
+    const loop = (now) => { frame(now); raf = visible ? requestAnimationFrame(loop) : 0; };
+    resize();
+    new ResizeObserver(() => { resize(); if (reduce) frame(0); }).observe(hero);
+    hero.classList.add('rw-scene-on');
+    if (reduce) frame(0);
+    else {
+      raf = requestAnimationFrame(loop);
+      new IntersectionObserver(([en]) => { visible = en.isIntersecting; if (visible && !raf) { last = 0; raf = requestAnimationFrame(loop); } }).observe(hero);
+      hero.addEventListener('mousemove', (e) => { const r = hero.getBoundingClientRect(); mx = ((e.clientX - r.left) / r.width - 0.5) * 2; });
+      hero.addEventListener('mouseleave', () => { mx = 0; });
+    }
+  }
+</script>

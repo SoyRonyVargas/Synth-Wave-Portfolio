@@ -1,0 +1,11 @@
+---
+import Base from '../../layouts/Base.astro';
+import DeLorean3D from '../../components/islands/DeLorean3D.jsx';
+---
+<Base title="Laboratorio · DeLorean 3D">
+  <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; background: radial-gradient(ellipse at 50% 70%, #4a0f6b, #0b0420 70%); color: #fff; font-family: 'IBM Plex Mono', monospace">
+    <p style="margin: 0; font-family: 'Press Start 2P', monospace; font-size: 11px; color: #fff27a">LAB · DELOREAN EN VIVO</p>
+    <DeLorean3D client:visible width={720} height={466} />
+    <p style="margin: 0; max-width: 520px; text-align: center; font-size: 13px; line-height: 1.6; color: #d9c8f5">Mientras carga el modelo se ve el sprite. Para usarlo en la portada, pon <code>"delorean3d": true</code> en <code>src/data/site.json</code>.</p>
+  </div>
+</Base>

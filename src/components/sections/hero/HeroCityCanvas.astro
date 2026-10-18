@@ -1,0 +1,157 @@
+---
+// Hero "ciudad" en Canvas 2D (/home6): todo se dibuja a mano cada frame, sin librerías.
+// Proyección en unidades del viewBox 1440×900 (horizonte y=520, cámara a 1 de altura, foco 380), escalada como "slice".
+---
+<canvas class="rw-hero-scene" data-city-canvas aria-hidden="true"></canvas>
+<script>
+  const hero = document.getElementById('inicio');
+  const cv = hero?.querySelector('[data-city-canvas]');
+  if (hero && cv) {
+    const ctx = cv.getContext('2d');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const frozen = new URLSearchParams(location.search).has('poster'); // frame 0 para el póster
+
+    const PALM_X = 1.75, PALM_DZ = 4.5, PALM_N = 15, PALM_H = 3.2, SPAN = PALM_DZ * PALM_N;
+    const ROAD = 0.9, LINE_DZ = 1.2, DASH_P = 3, DASH_L = 1.26, SPEED = 6;
+    let seed = 3;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const palms = [];
+    for (const side of [-1, 1])
+      for (let i = 0; i < PALM_N; i++)
+        palms.push({ side, off: i * PALM_DZ + (side > 0 ? PALM_DZ / 2 : 0) + rnd() * 1.2, k: 0.85 + rnd() * 0.4, dx: rnd() * 0.35 });
+
+    const load = (src) => new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.src = src; });
+
+    let W = 0, H = 0, dpr = 1, sp = 1, ox = 0, oy = 0;
+    const resize = () => {
+      const r = hero.getBoundingClientRect();
+      dpr = Math.min(devicePixelRatio || 1, 1.5); W = r.width; H = r.height;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      sp = Math.max(W / 1440, H / 900); ox = (W - 1440 * sp) / 2; oy = H - 900 * sp;
+    };
+    const PX = (vx) => ox + vx * sp, PY = (vy) => oy + vy * sp;
+
+    // sol en un canvas aparte (las franjas se recortan con destination-out sin borrar lo demás)
+    const sunC = document.createElement('canvas'), sg = sunC.getContext('2d');
+    function paintSun(t) {
+      const r = 175 * sp, S = Math.ceil(r * 2);
+      if (sunC.width !== S) { sunC.width = S; sunC.height = S; }
+      sg.clearRect(0, 0, S, S);
+      const g = sg.createLinearGradient(0, 0, 0, S);
+      g.addColorStop(0, '#ffd63f'); g.addColorStop(0.42, '#ffa03a'); g.addColorStop(0.7, '#ff5486'); g.addColorStop(1, '#ff2fb3');
+      sg.fillStyle = g; sg.beginPath(); sg.arc(r, r, r, 0, Math.PI * 2); sg.fill();
+      sg.globalCompositeOperation = 'destination-out';
+      const ph = (t * 0.5) % 1;
+      for (let i = 0; i < 9; i++) {
+        const v = (i + ph) / 9; // 0 = centro, 1 = abajo
+        const gh = (2 + v * 16) * sp;
+        sg.fillRect(0, r * 0.95 + v * r - gh / 2, S, gh);
+      }
+      sg.globalCompositeOperation = 'source-over';
+    }
+
+    function drawSky(t, camX, cityK, city) {
+      const r = 175 * sp, cx = PX(720) - camX * 10 * sp, cy = PY(425), hy = PY(520);
+      const pulse = 0.82 + 0.18 * Math.sin(t * 1.3);
+      const halo = ctx.createRadialGradient(cx, cy, r * 0.6, cx, cy, r * 1.9);
+      halo.addColorStop(0, `rgba(255,110,150,${0.6 * pulse})`); halo.addColorStop(0.45, `rgba(255,47,179,${0.2 * pulse})`); halo.addColorStop(1, 'rgba(255,47,179,0)');
+      ctx.fillStyle = halo; ctx.fillRect(cx - r * 2, cy - r * 2, r * 4, r * 4);
+      ctx.drawImage(sunC, cx - r, cy - r);
+      const cw = 1150 * sp * cityK, ch = (cw * 520) / 2400;
+      ctx.drawImage(city, PX(720) - camX * 8 * sp - cw / 2, hy - ch, cw, ch);
+    }
+
+    function palmList(travel) {
+      const out = [];
+      for (const p of palms) {
+        const d = (((p.off - travel) % SPAN) + SPAN) % SPAN - 3;
+        if (d < 0.35) continue;
+        const h = (PALM_H * p.k * 380) / d * sp;
+        out.push({ d, side: p.side, x: PX(720 + (p.side * (PALM_X + p.dx) * 380) / d), y: PY(520 + 380 / d), h, a: Math.min(1, Math.max(0, (SPAN * 0.95 - d) / (SPAN * 0.23))) });
+      }
+      return out.sort((a, b) => b.d - a.d);
+    }
+    function drawPalm(img, q, mirror) {
+      const w = (q.h * img.width) / img.height;
+      ctx.save(); ctx.globalAlpha *= q.a; ctx.translate(q.x, q.y); ctx.scale(-q.side, mirror ? -1 : 1);
+      ctx.drawImage(img, -w * 0.47, -q.h, w, q.h); ctx.restore();
+    }
+
+    function drawFloor(travel) {
+      const hy = PY(520), vx = PX(720);
+      // rayos rosas fuera del camino
+      ctx.strokeStyle = 'rgba(255,47,179,.75)'; ctx.lineWidth = 1.6; ctx.beginPath();
+      for (let k = 1; k <= 34; k++) for (const s of [-1, 1]) { ctx.moveTo(vx, hy); ctx.lineTo(PX(720 + s * 380 * (ROAD + 0.6 * k)), PY(900)); }
+      ctx.stroke();
+      // líneas horizontales que avanzan
+      const lt = travel % LINE_DZ;
+      for (let i = 1; i <= 40; i++) {
+        const d = i * LINE_DZ - lt, y = PY(520 + 380 / d);
+        const a = Math.max(0, Math.min(1, 1 - d / 30, (d - 0.3) * 4));
+        if (a <= 0 || y > H) continue;
+        ctx.fillStyle = `rgba(255,47,179,${0.3 * a})`; ctx.fillRect(0, y - 3, W, 6);
+        ctx.fillStyle = `rgba(255,47,179,${a})`; ctx.fillRect(0, y - 1, W, 2);
+      }
+      // camino oscuro con bordes cian
+      const bl = PX(720 - 342), br = PX(720 + 342), by = PY(900);
+      ctx.fillStyle = 'rgba(5,2,15,.92)'; ctx.beginPath(); ctx.moveTo(vx, hy); ctx.lineTo(bl, by); ctx.lineTo(br, by); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#3ff0ff'; ctx.beginPath(); ctx.moveTo(vx, hy); ctx.lineTo(bl, by); ctx.moveTo(vx, hy); ctx.lineTo(br, by);
+      ctx.globalAlpha = 0.3; ctx.lineWidth = 8; ctx.stroke(); ctx.globalAlpha = 1; ctx.lineWidth = 2.4; ctx.stroke();
+      // raya central discontinua
+      const dt3 = travel % DASH_P;
+      ctx.fillStyle = '#3ff0ff';
+      for (let i = 1; i <= 16; i++) {
+        const dn = i * DASH_P - 2 - dt3, df = dn + DASH_L;
+        if (dn < 0.4) continue;
+        const wn = (0.035 * 380) / dn * sp, wf = (0.035 * 380) / df * sp, yn = PY(520 + 380 / dn), yf = PY(520 + 380 / df);
+        ctx.beginPath(); ctx.moveTo(vx - wf, yf); ctx.lineTo(vx + wf, yf); ctx.lineTo(vx + wn, yn); ctx.lineTo(vx - wn, yn); ctx.closePath(); ctx.fill();
+      }
+      // horizonte: bruma rosa + línea cian
+      const hz = ctx.createLinearGradient(0, hy - 120 * sp, 0, hy);
+      hz.addColorStop(0, 'rgba(255,47,179,0)'); hz.addColorStop(1, 'rgba(255,47,179,.35)');
+      ctx.fillStyle = hz; ctx.fillRect(0, hy - 120 * sp, W, 120 * sp);
+      const gl = ctx.createLinearGradient(0, hy - 24, 0, hy + 24);
+      gl.addColorStop(0, 'rgba(63,240,255,0)'); gl.addColorStop(0.5, 'rgba(63,240,255,.55)'); gl.addColorStop(1, 'rgba(63,240,255,0)');
+      ctx.fillStyle = gl; ctx.fillRect(0, hy - 24, W, 48);
+      ctx.fillStyle = '#9ff8ff'; ctx.fillRect(0, hy - 1.5, W, 3);
+    }
+
+    Promise.all([load('/assets/palm.webp'), load('/assets/city.webp')]).then(([palm, city]) => {
+      let t = 0, travel = 0, camX = 0, mx = 0, last = 0;
+      function frame(now) {
+        const dt = frozen ? 0 : Math.min(0.05, (now - (last || now)) / 1000); last = now;
+        t += dt; travel += dt * SPEED;
+        camX += (mx * 0.3 - camX) * Math.min(1, dt * 3);
+        const cityK = 0.5 + 0.5 * (1 - Math.exp(-t / 14));
+        const hy = PY(520);
+        paintSun(t);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+        const list = palmList(travel);
+        // cielo (recortado en el horizonte)
+        ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, hy); ctx.clip(); drawSky(t, camX, cityK, city); ctx.restore();
+        // reflejos (espejo en el horizonte) y luego el piso encima
+        ctx.save(); ctx.beginPath(); ctx.rect(0, hy, W, H - hy); ctx.clip();
+        ctx.fillStyle = '#0b0420'; ctx.fillRect(0, hy, W, H - hy);
+        ctx.globalAlpha = 0.32;
+        ctx.save(); ctx.translate(0, 2 * hy); ctx.scale(1, -1); drawSky(t, camX, cityK, city); ctx.restore();
+        for (const q of list) drawPalm(palm, q, true);
+        ctx.restore();
+        drawFloor(travel);
+        for (const q of list) drawPalm(palm, q, false);
+      }
+      let raf = 0, visible = true;
+      const loop = (now) => { frame(now); raf = visible ? requestAnimationFrame(loop) : 0; };
+      resize();
+      new ResizeObserver(() => { resize(); if (reduce || frozen) frame(0); }).observe(hero);
+      frame(0);
+      hero.classList.add('rw-scene-on');
+      if (!reduce && !frozen) {
+        raf = requestAnimationFrame(loop);
+        new IntersectionObserver(([en]) => { visible = en.isIntersecting; if (visible && !raf) { last = 0; raf = requestAnimationFrame(loop); } }).observe(hero);
+        hero.addEventListener('mousemove', (e) => { const r = hero.getBoundingClientRect(); mx = ((e.clientX - r.left) / r.width - 0.5) * 2; });
+        hero.addEventListener('mouseleave', () => { mx = 0; });
+      }
+    });
+  }
+</script>

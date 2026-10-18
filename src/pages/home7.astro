@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/sections/Nav.astro';
+import Hero from '../components/sections/Hero.astro';
+import About from '../components/sections/About.astro';
+import Road from '../components/sections/Road.astro';
+import Zocalo from '../components/sections/Zocalo.astro';
+import Education from '../components/sections/Education.astro';
+import Contact from '../components/sections/Contact.astro';
+import Footer from '../components/sections/Footer.astro';
+import CrtOverlay from '../components/sections/CrtOverlay.astro';
+import CassetteDeck from '../components/islands/CassetteDeck.jsx';
+import RvOs from '../components/islands/RvOs.jsx';
+import VaporExe from '../components/islands/VaporExe.jsx';
+---
+<Base noindex>
+  <div class="rw-page" style="position: relative; overflow: hidden; background: #0b0420; color: #fff; font-family: 'IBM Plex Mono', monospace">
+    <Nav />
+    <main>
+      <Hero variant="purple-r3f" />
+      <About />
+      <Road />
+      <CassetteDeck client:visible />
+      <RvOs client:visible />
+      <Zocalo />
+      <VaporExe client:visible />
+      <Education />
+      <Contact />
+    </main>
+    <Footer />
+    <CrtOverlay />
+  </div>
+</Base>

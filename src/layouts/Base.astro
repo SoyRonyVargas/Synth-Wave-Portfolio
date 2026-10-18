@@ -1,0 +1,48 @@
+---
+// Fuentes servidas desde el propio sitio (sin pedirlas a Google): más rápido y mejor para Core Web Vitals.
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '@fontsource/press-start-2p/400.css';
+import '@fontsource/orbitron/900.css';
+import '@fontsource/mr-dafoe/400.css';
+import '@fontsource/londrina-solid/400.css';
+import '@fontsource/londrina-solid/900.css';
+import '@fontsource/londrina-outline/400.css';
+import '../styles/global.css';
+import site from '../data/site.json';
+const { title = site.title, description = site.description, noindex = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+const ogImage = new URL('/og.png', Astro.site ?? site.url).href;
+const person = {
+  '@context': 'https://schema.org', '@type': 'Person', name: site.name, jobTitle: site.role, url: site.url,
+  address: { '@type': 'PostalAddress', addressLocality: 'Cancún', addressRegion: 'Quintana Roo', addressCountry: 'MX' },
+  knowsAbout: ['Node.js', 'React', 'Vue.js', 'Nest.js', 'Next.js', 'SQL Server', 'MySQL'],
+  sameAs: [site.linkedin, site.github].filter(Boolean),
+};
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#0b0420" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_MX" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" as="image" href="/assets/delorean-rear-sprite.webp" />
+    <script type="application/ld+json" set:html={JSON.stringify(person)} />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

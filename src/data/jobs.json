@@ -1,0 +1,70 @@
+[
+  {
+    "year": "2024",
+    "dates": "ABR 2024 — ABR 2026",
+    "place": "CANCÚN",
+    "dur": "2 AÑOS",
+    "short": "UPNIFY",
+    "file": "upnify.log",
+    "role": "Desarrollador Fullstack",
+    "company": "Upnify (SalesUp!)",
+    "stack": "JavaScript · Node.js · Express · React · SQL Server · Jest · GitHub Actions · SonarCloud",
+    "bullets": [
+      "Entregué cerca de 20 addons para un CRM empresarial usado por más de 3,000 usuarios.",
+      "Reconstruí el sistema interno de cuentas: nueva interfaz y nueva arquitectura del módulo.",
+      "Construí el módulo de tareas y flujos de trabajo (Kanban, checklists, plantillas, notificaciones) sobre SQL Server.",
+      "Integré Microsoft, Zoom, OpenAI y TikTok Lead Ads vía OAuth y webhooks.",
+      "Reduje ~80% los bugs de mis módulos con Jest, SonarCloud y CI en GitHub Actions."
+    ]
+  },
+  {
+    "year": "2023",
+    "dates": "JUN 2023 — DIC 2023",
+    "place": "CANCÚN",
+    "dur": "7 MESES",
+    "short": "UPQROO",
+    "file": "upqroo.log",
+    "role": "Desarrollador Fullstack",
+    "company": "Universidad Politécnica de Quintana Roo",
+    "stack": "Vue.js · Nest.js · MySQL",
+    "bullets": [
+      "Plataforma Oferta Educativa Quintana Roo: orientación vocacional para estudiantes de todo el estado.",
+      "Frontend en Vue.js, backend en Nest.js y administración de la base de datos MySQL.",
+      "Despliegues a producción y refuerzo de seguridad tras un intento de intrusión.",
+      "Mejoras de SEO y analítica para medir el uso real de la plataforma."
+    ]
+  },
+  {
+    "year": "2021",
+    "dates": "ABR 2021 — OCT 2022",
+    "place": "CANCÚN",
+    "dur": "1 AÑO 6 MESES",
+    "short": "HIPLOT",
+    "file": "hiplot.log",
+    "role": "Desarrollador Fullstack",
+    "company": "Hiplot Impresiones",
+    "stack": ".NET · Angular · React · Next.js · SQL Server · Git",
+    "bullets": [
+      "Desarrollé de punta a punta un CRM y un ERP internos, y los desplegué a producción.",
+      "Construí un editor de sitios tipo WordPress con React y Next.js: bloques de arrastrar y soltar, sin código.",
+      "Introduje Git y GitHub al equipo y el deploy desde el repositorio.",
+      "Optimicé consultas en SQL Server y agregué pruebas unitarias y de integración."
+    ]
+  },
+  {
+    "year": "2020",
+    "dates": "MAY 2020 — DIC 2020",
+    "place": "CDMX",
+    "dur": "8 MESES",
+    "short": "FREELANCE",
+    "file": "freelance.log",
+    "role": "Desarrollador Web Freelance",
+    "company": "Mexacril · Alu-Mex · Anuncios Luminosos de México",
+    "stack": "HTML · CSS · JavaScript · SEO",
+    "bullets": [
+      "Desarrollé y mantuve tres sitios corporativos para empresas de manufactura y publicidad.",
+      "SEO on-page y optimización de carga para mejorar posicionamiento y captar prospectos.",
+      "Configuré Google Analytics y entregué reportes periódicos a cada cliente."
+    ]
+  }
+]

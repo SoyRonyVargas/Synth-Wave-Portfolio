@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://soyronyvargas.netlify.app/sitemap-index.xml
