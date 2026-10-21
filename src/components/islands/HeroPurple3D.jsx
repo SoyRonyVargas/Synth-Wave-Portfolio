@@ -325,9 +325,9 @@ function Palms({ clock, mirror = false }) {
 }
 
 // Anuncios de neón retro entre las montañas: pasan de vez en cuando, alternando izquierda y derecha (sin marcas reales).
-// Van en el hueco plano entre palmeras y montañas, con postes altos para que el tablero libre las faldas.
+// Van a la orilla del camino, por dentro de la fila de palmeras (así ni troncos ni montañas los tapan) y bajo las copas.
 // SIGN_SPAN es múltiplo del tramo de palmeras y cada anuncio cae justo entre dos palmeras de su lado: nunca se cruzan.
-const SIGN_SPAN = PALM_SPAN * 3, SIGN_X = 2.85, SIGN_W = 1.7;
+const SIGN_SPAN = PALM_SPAN * 3, SIGN_X = 1.95, SIGN_W = 1.2;
 const SIGNS = [
   { side: -1, off: 26.5, tex: 0 },
   { side: 1, off: 72.5, tex: 1 },
@@ -413,7 +413,7 @@ function Signs({ clock }) {
       if (!m) return;
       const z = -((((p.off - tr) % SIGN_SPAN) + SIGN_SPAN) % SIGN_SPAN) + 3;
       m.position.set(p.side * SIGN_X, 0, z);
-      m.rotation.y = -p.side * 0.3; // mirando un poco hacia el camino
+      m.rotation.y = -p.side * 0.25; // mirando un poco hacia el camino
     });
   });
   return SIGNS.map((p, i) => (
