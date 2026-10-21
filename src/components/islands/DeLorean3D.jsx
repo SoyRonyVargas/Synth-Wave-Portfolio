@@ -4,7 +4,6 @@ import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
 const MODEL = "/models/delorean.glb";
-const deg = THREE.MathUtils.degToRad;
 
 // Mismo "look" que los renders del sitio: cromo, calaveras rojas y luces rosa/cian.
 function useSynthEnv() {
@@ -104,12 +103,12 @@ function Car({ onReady }) {
   useEffect(() => {
     onReady?.();
   }, [onReady]);
+  // Va recto: sin giros a los lados, solo una vibración vertical mínima, como la suspensión sobre la carretera.
   useFrame(({ clock }) => {
-    const a = (clock.elapsedTime / 1.6) * Math.PI * 2;
     if (!ref.current) return;
-    ref.current.rotation.y = deg(3.2 * Math.sin(a));
-    ref.current.rotation.z = deg(1.1 * Math.sin(a + 0.6));
-    ref.current.position.y = 0.018 * Math.sin(a * 4);
+    const t = clock.elapsedTime;
+    ref.current.rotation.set(0, 0, 0);
+    ref.current.position.y = 0.006 * Math.sin(t * 18) + 0.004 * Math.sin(t * 7.3);
   });
   return (
     <group ref={ref}>

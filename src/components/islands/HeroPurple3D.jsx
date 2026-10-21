@@ -47,10 +47,10 @@ function Sun({ clock, mirror = false }) {
         transparent: true,
         depthWrite: false,
         side: THREE.DoubleSide,
-        uniforms: { uTime: { value: 0 }, uAlpha: { value: mirror ? 0.45 : 1 } },
+        uniforms: { uTime: { value: 0 }, uAlpha: { value: mirror ? 0.22 : 1 }, uMirror: { value: mirror ? 1 : 0 } },
         vertexShader: VERT,
         fragmentShader: /* glsl */ `
-          uniform float uTime, uAlpha; varying vec2 vUv;
+          uniform float uTime, uAlpha, uMirror; varying vec2 vUv;
           void main() {
             vec2 p = (vUv - 0.5) * 3.0;
             float r = length(p);
@@ -65,7 +65,9 @@ function Sun({ clock, mirror = false }) {
             float stripe = y > -0.15 ? step(gap, k) : 1.0;
             float halo = exp(-max(r - 0.95, 0.0) * 2.0) * 0.55 * (1.0 - smoothstep(1.05, 1.48, r));
             vec3 col = c * body * stripe + vec3(1.0, 0.55, 0.9) * halo * (1.0 - body * stripe);
-            gl_FragColor = vec4(col, max(body * stripe, halo) * uAlpha);
+            // reflejo: solo una franja tenue pegada al horizonte (p.y ≈ -0.48), se apaga antes de llegar al DeLorean
+            float fade = mix(1.0, 1.0 - smoothstep(-0.48, -0.15, p.y), uMirror);
+            gl_FragColor = vec4(col, max(body * stripe, halo) * uAlpha * fade);
           }`,
       }),
     [mirror]
@@ -199,6 +201,61 @@ function Floor({ clock }) {
   );
 }
 
+// Ciudad lejana: silueta morada sobre el horizonte, frente al sol. Dos capas de edificios, ventanitas tenues y orillas desvanecidas.
+const CITY_W = 2400, CITY_H = 110; // en px de pantalla (escala 1440×900)
+function City() {
+  const mat = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite: false,
+        uniforms: { uSize: { value: new THREE.Vector2(CITY_W, CITY_H) } },
+        vertexShader: VERT,
+        fragmentShader: /* glsl */ `
+          uniform vec2 uSize; varying vec2 vUv;
+          float h1(float n) { return fract(sin(n * 12.9898) * 43758.5453); }
+          float tower(float x, float cell, float seed, float lo, float hi) {
+            float id = floor(x / cell);
+            float h = mix(lo, hi, h1(id + seed));
+            if (h1(id * 1.7 + seed) > 0.86) h *= 1.45;                       // alguna torre alta
+            h *= 1.0 + 0.7 * exp(-pow((x - uSize.x * 0.5) / 380.0, 2.0));   // centro más alto
+            float f = fract(x / cell);
+            if (h1(id + seed + 3.1) > 0.8 && abs(f - 0.5) < 0.04) h += 10.0; // antena
+            return h;
+          }
+          void main() {
+            vec2 q = vUv * uSize;
+            float edge = smoothstep(0.0, 380.0, q.x) * smoothstep(uSize.x, uSize.x - 380.0, q.x);
+            float hb = tower(q.x + 7.0, 21.0, 11.0, 20.0, 48.0);
+            float hf = tower(q.x, 29.0, 47.0, 10.0, 32.0);
+            float back = step(q.y, hb), front = step(q.y, hf);
+            vec3 col = vec3(0.42, 0.16, 0.66); float a = back * 0.62;
+            col = mix(col, vec3(0.95, 0.7, 1.0), back * (1.0 - front) * step(hb - 1.2, q.y) * 0.6); // filo de luz arriba
+            if (front > 0.5) {
+              col = vec3(0.17, 0.05, 0.33); a = 0.9;
+              vec2 cell = floor(q / vec2(4.0, 5.0));
+              vec2 inC = fract(q / vec2(4.0, 5.0));
+              float lit = step(0.84, h1(cell.x * 7.3 + cell.y * 13.1)) * step(inC.x, 0.5) * step(inC.y, 0.5) * step(q.y, hf - 3.0);
+              col = mix(col, mix(vec3(1.0, 0.85, 0.35), vec3(1.0, 0.45, 0.85), h1(cell.x + cell.y)), lit * 0.85);
+            }
+            col = mix(col, vec3(0.75, 0.35, 0.9), 0.15);                     // bruma de distancia
+            gl_FragColor = vec4(col, a * edge);
+          }`,
+      }),
+    []
+  );
+  const ref = useRef();
+  const { s, focal } = useFrameInfo();
+  const { camera } = useThree();
+  useFrame(() => {
+    const k = (s / focal) * (D_SKY - 3);
+    ref.current.scale.set(CITY_W * k, CITY_H * k, 1);
+    ref.current.position.set(camera.position.x * 0.9, 0, -D_SKY + 3);
+  });
+  const geo = useMemo(() => new THREE.PlaneGeometry(1, 1).translate(0, 0.5, 0), []);
+  return <mesh ref={ref} geometry={geo} material={mat} renderOrder={1} />;
+}
+
 // Brillo del horizonte (rosa claro)
 function Horizon() {
   const mat = useMemo(
@@ -267,6 +324,103 @@ function Palms({ clock, mirror = false }) {
   ));
 }
 
+// Anuncios de neón retro entre las montañas: pasan de vez en cuando, alternando izquierda y derecha (sin marcas reales).
+// Van en el hueco plano entre palmeras y montañas, con postes altos para que el tablero libre las faldas.
+// SIGN_SPAN es múltiplo del tramo de palmeras y cada anuncio cae justo entre dos palmeras de su lado: nunca se cruzan.
+const SIGN_SPAN = PALM_SPAN * 3, SIGN_X = 2.85, SIGN_W = 1.7;
+const SIGNS = [
+  { side: -1, off: 26.5, tex: 0 },
+  { side: 1, off: 72.5, tex: 1 },
+  { side: -1, off: 122.5, tex: 2 },
+  { side: 1, off: 168.5, tex: 3 },
+];
+const SIGN_ART = [
+  { top: "RV-85", sub: "ARCADE", c1: "#fff27a", c2: "#ff2fb3", f1: "900 92px Orbitron" },
+  { top: "OPEN", sub: "24 HRS", c1: "#3ff0ff", c2: "#fff27a", f1: "900 100px Orbitron" },
+  { top: "Neon", sub: "MOTEL", c1: "#ff2fb3", c2: "#3ff0ff", f1: "120px 'Mr Dafoe'" },
+  { top: "VHS", sub: "RENTAL", c1: "#7dffcf", c2: "#ff9a5a", f1: "900 100px Orbitron" },
+];
+function drawSign(g, a) {
+  const W = 512, H = 512;
+  g.clearRect(0, 0, W, H);
+  g.fillStyle = "#2a1450";
+  for (const x of [120, 380]) g.fillRect(x, 240, 14, H - 240);         // postes
+  g.fillStyle = "rgba(18,4,40,0.92)";
+  g.fillRect(28, 20, W - 56, 224);
+  g.lineJoin = "round";
+  g.shadowColor = a.c2; g.shadowBlur = 18; g.strokeStyle = a.c2; g.lineWidth = 8;
+  g.strokeRect(36, 28, W - 72, 208);
+  g.shadowBlur = 0; g.lineWidth = 2; g.strokeStyle = "rgba(255,255,255,0.5)";
+  g.strokeRect(50, 42, W - 100, 180);
+  g.textAlign = "center"; g.textBaseline = "middle";
+  g.font = a.f1; g.fillStyle = a.c1; g.shadowColor = a.c1; g.shadowBlur = 22;
+  g.fillText(a.top, W / 2, 112); g.shadowBlur = 8; g.fillStyle = "#fff"; g.globalAlpha = 0.55; g.fillText(a.top, W / 2, 112); g.globalAlpha = 1;
+  g.font = "28px 'Press Start 2P'"; g.fillStyle = a.c2; g.shadowColor = a.c2; g.shadowBlur = 14;
+  g.fillText(a.sub, W / 2, 190);
+  g.shadowBlur = 0;
+}
+function Signs({ clock }) {
+  const texes = useMemo(
+    () =>
+      SIGN_ART.map((a) => {
+        const c = document.createElement("canvas");
+        c.width = 512; c.height = 512;
+        drawSign(c.getContext("2d"), a);
+        const t = new THREE.CanvasTexture(c);
+        t.colorSpace = THREE.SRGBColorSpace;
+        t.anisotropy = 4;
+        t.userData = { c, a };
+        return t;
+      }),
+    []
+  );
+  useEffect(() => {
+    // redibuja cuando cargan las fuentes del sitio (Fontsource)
+    const fonts = ["900 40px Orbitron", "40px 'Mr Dafoe'", "20px 'Press Start 2P'"];
+    Promise.all(fonts.map((f) => document.fonts.load(f))).then(() =>
+      texes.forEach((t) => { drawSign(t.userData.c.getContext("2d"), t.userData.a); t.needsUpdate = true; })
+    );
+  }, [texes]);
+  const mats = useMemo(
+    () =>
+      texes.map((tex, i) =>
+        new THREE.ShaderMaterial({
+          transparent: true,
+          side: THREE.DoubleSide,
+          uniforms: { uMap: { value: tex }, uTime: { value: 0 }, uSeed: { value: i * 3.7 + 1.0 } },
+          vertexShader: VERT,
+          fragmentShader: /* glsl */ `uniform sampler2D uMap; uniform float uTime, uSeed; varying vec2 vUv; varying float vDepth;
+            float h1(float n) { return fract(sin(n * 12.9898) * 43758.5453); }
+            void main(){
+              vec4 c = texture2D(uMap, vUv); if (c.a < 0.08) discard;
+              float tick = floor(uTime * 14.0);
+              float flick = h1(tick + uSeed) > 0.965 ? 0.45 : 1.0;          // parpadeo ocasional del neón
+              vec3 col = mix(c.rgb, c.rgb * flick, step(0.5, vUv.y));
+              col = mix(col, vec3(0.85, 0.45, 0.95), smoothstep(18.0, 55.0, vDepth) * 0.55);
+              float fade = (1.0 - smoothstep(40.0, 58.0, vDepth)) * smoothstep(1.5, 4.0, vDepth);
+              gl_FragColor = vec4(col, c.a * fade); }`,
+        })
+      ),
+    [texes]
+  );
+  const geo = useMemo(() => new THREE.PlaneGeometry(SIGN_W, SIGN_W).translate(0, SIGN_W / 2, 0), []);
+  const refs = useRef([]);
+  useFrame(() => {
+    const tr = clock.current.travel;
+    mats.forEach((m) => (m.uniforms.uTime.value = clock.current.t));
+    SIGNS.forEach((p, i) => {
+      const m = refs.current[i];
+      if (!m) return;
+      const z = -((((p.off - tr) % SIGN_SPAN) + SIGN_SPAN) % SIGN_SPAN) + 3;
+      m.position.set(p.side * SIGN_X, 0, z);
+      m.rotation.y = -p.side * 0.3; // mirando un poco hacia el camino
+    });
+  });
+  return SIGNS.map((p, i) => (
+    <mesh key={i} ref={(el) => (refs.current[i] = el)} geometry={geo} material={mats[p.tex]} renderOrder={9} frustumCulled={false} />
+  ));
+}
+
 function Ready({ onReady }) {
   const n = useRef(0);
   useFrame(() => { if (++n.current === 3) onReady(); });
@@ -307,12 +461,14 @@ export default function HeroPurple3D() {
       <Suspense fallback={null}>
         <Sun clock={clock} />
         <Sun clock={clock} mirror />
+        <City />
         <Mountains clock={clock} mirror />
         <Palms clock={clock} mirror />
         <Floor clock={clock} />
         <Horizon />
         <Mountains clock={clock} />
         <Palms clock={clock} />
+        <Signs clock={clock} />
         <Ready onReady={() => document.getElementById("inicio")?.classList.add("rw-scene-on")} />
       </Suspense>
     </Canvas>

@@ -428,5 +428,13 @@ a{color:#3ff0ff}a:hover{color:#fff27a}
 .rw-scene-on .rw-hero-poster{visibility:hidden}
 
 /* variantes moradas (/home7-9): logo más chico y arriba, cielo con más estrellas */
+[data-variant^="purple"] .rw-car-sprite{animation:none;background-image:url(/assets/delorean-rear-straight.webp);background-size:360px 233px;background-position:0 0}
+/* Suspensión sobre el asfalto: vibración irregular y un bache de vez en cuando, siempre vertical (nada de giros a los lados) */
+@keyframes carRoad{0%{transform:translateY(0)}7%{transform:translateY(-1.5px)}14%{transform:translateY(0)}22%{transform:translateY(-1px)}30%{transform:translateY(0)}38%{transform:translateY(-2px)}46%{transform:translateY(-.5px)}55%{transform:translateY(-1.5px)}63%{transform:translateY(0)}70%{transform:translateY(-4px)}74%{transform:translateY(.5px)}79%{transform:translateY(-1.5px)}86%{transform:translateY(0)}93%{transform:translateY(-1px)}100%{transform:translateY(0)}}
+@keyframes carShadow{0%,100%{transform:scaleX(1);opacity:1}70%{transform:scaleX(.96);opacity:.85}}
+@media (prefers-reduced-motion: no-preference){
+  [data-variant^="purple"] .rw-car{animation:carRoad 2.6s linear infinite}
+  [data-variant^="purple"] .rw-car-shadow{animation:carShadow 2.6s ease-in-out infinite}
+}
 [data-variant^="purple"] .rw-logo-box{scale:.6;translate:0 -78px}
 .rw-stars-dense{background-size:420px 300px;opacity:.9}
