@@ -212,61 +212,6 @@ function Floor({ clock }) {
   );
 }
 
-// Ciudad lejana: silueta morada sobre el horizonte, frente al sol. Dos capas de edificios, ventanitas tenues y orillas desvanecidas.
-const CITY_W = 2400, CITY_H = 110; // en px de pantalla (escala 1440×900)
-function City() {
-  const mat = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        transparent: true,
-        depthWrite: false,
-        uniforms: { uSize: { value: new THREE.Vector2(CITY_W, CITY_H) } },
-        vertexShader: VERT,
-        fragmentShader: /* glsl */ `
-          uniform vec2 uSize; varying vec2 vUv;
-          float h1(float n) { return fract(sin(n * 12.9898) * 43758.5453); }
-          float tower(float x, float cell, float seed, float lo, float hi) {
-            float id = floor(x / cell);
-            float h = mix(lo, hi, h1(id + seed));
-            if (h1(id * 1.7 + seed) > 0.86) h *= 1.45;                       // alguna torre alta
-            h *= 1.0 + 0.7 * exp(-pow((x - uSize.x * 0.5) / 380.0, 2.0));   // centro más alto
-            float f = fract(x / cell);
-            if (h1(id + seed + 3.1) > 0.8 && abs(f - 0.5) < 0.04) h += 10.0; // antena
-            return h;
-          }
-          void main() {
-            vec2 q = vUv * uSize;
-            float edge = smoothstep(0.0, 380.0, q.x) * smoothstep(uSize.x, uSize.x - 380.0, q.x);
-            float hb = tower(q.x + 7.0, 21.0, 11.0, 20.0, 48.0);
-            float hf = tower(q.x, 29.0, 47.0, 10.0, 32.0);
-            float back = step(q.y, hb), front = step(q.y, hf);
-            vec3 col = vec3(0.42, 0.16, 0.66); float a = back * 0.62;
-            col = mix(col, vec3(0.95, 0.7, 1.0), back * (1.0 - front) * step(hb - 1.2, q.y) * 0.6); // filo de luz arriba
-            if (front > 0.5) {
-              col = vec3(0.17, 0.05, 0.33); a = 0.9;
-              vec2 cell = floor(q / vec2(4.0, 5.0));
-              vec2 inC = fract(q / vec2(4.0, 5.0));
-              float lit = step(0.84, h1(cell.x * 7.3 + cell.y * 13.1)) * step(inC.x, 0.5) * step(inC.y, 0.5) * step(q.y, hf - 3.0);
-              col = mix(col, mix(vec3(1.0, 0.85, 0.35), vec3(1.0, 0.45, 0.85), h1(cell.x + cell.y)), lit * 0.85);
-            }
-            col = mix(col, vec3(0.75, 0.35, 0.9), 0.15);                     // bruma de distancia
-            gl_FragColor = vec4(col, a * edge);
-          }`,
-      }),
-    []
-  );
-  const ref = useRef();
-  const { s, focal } = useFrameInfo();
-  const { camera } = useThree();
-  useFrame(() => {
-    const k = (s / focal) * (D_SKY - 3);
-    ref.current.scale.set(CITY_W * k, CITY_H * k, 1);
-    ref.current.position.set(camera.position.x * 0.9, 0, -D_SKY + 3);
-  });
-  const geo = useMemo(() => new THREE.PlaneGeometry(1, 1).translate(0, 0.5, 0), []);
-  return <mesh ref={ref} geometry={geo} material={mat} renderOrder={1} />;
-}
-
 // Brillo del horizonte (rosa claro)
 function Horizon() {
   const mat = useMemo(
@@ -377,7 +322,6 @@ export default function HeroPurple3D() {
       <Rig mouse={mouse} clock={clock} />
       <Suspense fallback={null}>
         <Sun clock={clock} />
-        <City />
         <Mountains clock={clock} mirror />
         <Palms clock={clock} mirror />
         <Floor clock={clock} />
