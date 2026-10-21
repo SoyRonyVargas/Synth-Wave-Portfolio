@@ -3,8 +3,8 @@ import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { PerformanceMonitor } from "@react-three/drei";
 import * as THREE from "three";
 
-// Hero morado en React Three Fiber (/home7): sol amarillo gigante, montañas low-poly moradas a los lados,
-// palmeras moradas, camino brillante con líneas amarillas y piso que refleja todo.
+// Hero morado en React Three Fiber (/home7): sol amarillo gigante, terreno de alambre con colinas aleatorias,
+// palmeras en la orilla y entre las montañas, carretera brillante con orillas de neón y piso que refleja todo.
 
 const FOV = 50;
 const SPEED = 6;
@@ -12,7 +12,6 @@ const ROAD = 1.3;
 const PALM_X = 2.25, PALM_DZ = 4, PALM_N = 16, PALM_H = 3.4;
 const PALM_SPAN = PALM_DZ * PALM_N;
 const MT_IN = 3.1; // donde empiezan las montañas
-const DZ = 1.2, ROWS = 50, L = DZ * ROWS; // tramo de montañas
 const D_SKY = 240;
 
 const FROZEN = typeof location !== "undefined" && new URLSearchParams(location.search).has("poster");
@@ -96,35 +95,66 @@ function Sun({ clock, mirror = false }) {
   return <mesh ref={ref} geometry={mirror ? MIRROR_SUN_GEO : SUN_GEO} material={mat} renderOrder={mirror ? 1 : 0} />;
 }
 
-// Montañas low-poly: caras moradas con luz, aristas lavanda y brillo amarillo del sol a contraluz
-function hash(a, b) {
-  let h = (a * 374761393 + b * 668265263) | 0;
+// Montañas: terreno continuo de cuadrícula (alambre) deformado con ruido fractal suave, que sube desde la orilla del camino.
+// El ruido es periódico en z (MT_L) para que el tramo se repita sin costuras. Las palmeras sueltas se paran sobre las colinas.
+const MT_L = 90, MT_DX = 1.0, MT_DZ = 1.0, MT_NC = 34, MT_NR = MT_L / MT_DZ;
+function lattice(ix, iz, period, salt) {
+  iz = ((iz % period) + period) % period;
+  let h = (ix * 374761393 + iz * 668265263 + salt * 2246822519) | 0;
   h = Math.imul(h ^ (h >>> 13), 1274126177);
   return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
 }
-const SIDE = [];
-for (let k = 0, x = MT_IN; k < 16; k++, x = x * 1.25 + 0.3) SIDE.push(x);
-const MXS = [...SIDE.map((x) => -x).reverse(), ...SIDE]; // izquierda | derecha (sin hueco en medio: se salta)
-function mtHeight(c, j) {
-  const ax = Math.abs(MXS[c]);
-  const ramp = Math.min(1, (ax - MT_IN) / 1.4);
-  return ramp * (1.0 + ax * 0.32) * (0.3 + 0.7 * hash(c, j % ROWS));
+function vnoise(x, z, cellsPerTile, salt) {
+  // ruido de valor suave; cellsPerTile celdas a lo largo de MT_L → periódico en z
+  const f = cellsPerTile / MT_L, X = x * f, Z = z * f;
+  const ix = Math.floor(X), iz = Math.floor(Z), fx = X - ix, fz = Z - iz;
+  const s = (t) => t * t * t * (t * (t * 6 - 15) + 10);
+  const a = lattice(ix, iz, cellsPerTile, salt), b = lattice(ix + 1, iz, cellsPerTile, salt);
+  const c = lattice(ix, iz + 1, cellsPerTile, salt), d = lattice(ix + 1, iz + 1, cellsPerTile, salt);
+  const u = s(fx), v = s(fz);
+  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
 }
+function terrainHeight(x, z) {
+  const ax = Math.abs(x);
+  if (ax <= MT_IN) return 0;
+  const ramp = THREE.MathUtils.smoothstep(ax, MT_IN, MT_IN + 3.2);
+  const fbm = vnoise(x, z, 12, 1) * 0.55 + vnoise(x, z, 24, 2) * 0.28 + vnoise(x, z, 48, 3) * 0.17; // colinas + detalle
+  const big = vnoise(x, z, 4, 4);                                                                     // zonas altas y bajas
+  return ramp * (0.2 + 2.0 * Math.pow(fbm, 1.5)) * (0.45 + 0.8 * big) * (0.85 + ax * 0.025);
+}
+const LAYOUT = (() => {
+  let seed = 11;
+  const r = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const palms = [];
+  for (const side of [-1, 1])
+    for (let i = 0; i < 11; i++) {
+      const x = side * (MT_IN + 1.5 + r() * 16), z = r() * MT_L;
+      palms.push({ side, x, y: terrainHeight(x, z) - 0.1, off: z + 3, k: 0.85 + r() * 0.6 });
+    }
+  return { palms };
+})();
 function useMountainGeometry() {
   return useMemo(() => {
-    const n = MXS.length, half = n / 2;
-    const pos = [], grid = [];
-    for (let j = 0; j < ROWS; j++)
-      for (let c = 0; c < n - 1; c++) {
-        if (c === half - 1) continue; // hueco del camino
-        for (const [cc, jj] of [[c, j], [c + 1, j], [c + 1, j + 1], [c, j], [c + 1, j + 1], [c, j + 1]]) {
-          pos.push(MXS[cc], mtHeight(cc, jj), -jj * DZ);
-          grid.push(cc, jj);
+    const pos = [], grid = [], idx = [];
+    const cols = MT_NC + 1, rows = MT_NR + 1;
+    for (const side of [-1, 1]) {
+      const o = pos.length / 3;
+      for (let j = 0; j < rows; j++)
+        for (let c = 0; c < cols; c++) {
+          const x = side * (MT_IN + c * MT_DX), z = j * MT_DZ;
+          pos.push(x, terrainHeight(x, z), -z);
+          grid.push(c, j);
         }
-      }
+      for (let j = 0; j < rows - 1; j++)
+        for (let c = 0; c < cols - 1; c++) {
+          const a = o + j * cols + c, b = a + 1, d = a + cols, e = d + 1;
+          idx.push(a, b, e, a, e, d);
+        }
+    }
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
     g.setAttribute("aGrid", new THREE.Float32BufferAttribute(grid, 2));
+    g.setIndex(idx);
     return g;
   }, []);
 }
@@ -146,23 +176,23 @@ function Mountains({ clock, mirror = false }) {
             if (n.y < 0.0) n = -n;
             float lam = clamp(dot(n, normalize(vec3(0.35, 0.8, 0.45))), 0.0, 1.0);
             float rim = pow(clamp(dot(n, normalize(vec3(0.0, 0.25, -1.0))), 0.0, 1.0), 2.5);
-            vec3 col = mix(vec3(0.13, 0.04, 0.3), vec3(0.5, 0.25, 0.85), lam);
-            col += vec3(1.0, 0.78, 0.3) * rim * 0.55;
+            vec3 col = mix(vec3(0.08, 0.025, 0.2), vec3(0.32, 0.15, 0.58), lam);
+            col += vec3(1.0, 0.78, 0.3) * rim * 0.25;
             vec2 d = abs(fract(vGrid - 0.5) - 0.5) / fwidth(vGrid);
             float line = 1.0 - smoothstep(0.6, 1.6, min(d.x, d.y));
-            col = mix(col, vec3(0.92, 0.82, 1.0), line * 0.85);
-            float fog = smoothstep(32.0, ${(L * 0.95).toFixed(1)}, vDepth);
-            col = mix(col, vec3(0.75, 0.35, 0.9), fog * 0.8);
-            gl_FragColor = vec4(col, (1.0 - smoothstep(${(L * 0.8).toFixed(1)}, ${(L * 1.0).toFixed(1)}, vDepth)) * uAlpha);
+            col = mix(col, vec3(0.92, 0.82, 1.0), line * 0.45);
+            float fog = smoothstep(30.0, ${(MT_L * 0.95).toFixed(1)}, vDepth);
+            col = mix(col, vec3(0.55, 0.25, 0.7), fog * 0.8);
+            gl_FragColor = vec4(col, (1.0 - smoothstep(${(MT_L * 0.75).toFixed(1)}, ${(MT_L * 0.98).toFixed(1)}, vDepth)) * uAlpha * 0.85);
           }`,
       }),
     [mirror]
   );
   const a = useRef(), b = useRef();
   useFrame(() => {
-    const o = clock.current.travel % L;
+    const o = clock.current.travel % MT_L;
     const sy = mirror ? -1 : 1;
-    a.current.position.z = o; b.current.position.z = o - L;
+    a.current.position.z = o; b.current.position.z = o - MT_L;
     a.current.scale.y = sy; b.current.scale.y = sy;
   });
   return (
@@ -172,8 +202,7 @@ function Mountains({ clock, mirror = false }) {
     </>
   );
 }
-
-// Piso: camino oscuro brillante con raya amarilla; a los lados cuadrícula amarilla de neón. Semitransparente = reflejos.
+// Piso: asfalto oscuro y brillante con orillas de neón y raya central amarilla; a los lados cuadrícula amarilla. Semitransparente = reflejos.
 function Floor({ clock }) {
   const mat = useMemo(
     () =>
@@ -193,12 +222,18 @@ function Floor({ clock }) {
             float sideZone = step(${ROAD.toFixed(2)}, ax) * (1.0 - step(${(MT_IN + 0.6).toFixed(2)}, ax));
             float g = max(lineAA((ax - ${ROAD.toFixed(2)}) / 0.9, 2.0), lineAA(z / 2.4, 2.0)) * sideZone * (1.0 - far);
             float dash = (1.0 - smoothstep(0.05, 0.05 + fwidth(x), ax)) * step(fract(z / 3.2), 0.5);
-            float edgeDash = (1.0 - smoothstep(0.06, 0.06 + fwidth(x) * 1.5, abs(ax - (${ROAD.toFixed(2)} - 0.12)))) * step(fract(z / 4.0 + 0.25), 0.55);
-            vec3 base = mix(vec3(0.1, 0.03, 0.22), vec3(0.05, 0.015, 0.12), road);
+            // orillas: línea de neón continua con resplandor; centro: raya con brillo; asfalto mojado que refleja el sol
+            float edge = abs(ax - ${ROAD.toFixed(2)});
+            float edgeLine = 1.0 - smoothstep(1.0, 2.4, edge / fwidth(x));
+            float edgeGlow = exp(-edge * 7.0) * 0.45;
+            float dashGlow = exp(-ax * 9.0) * step(fract(z / 3.2), 0.5) * 0.35 * road;
+            float sheen = exp(-ax * 0.8) * smoothstep(3.0, 80.0, vDepth) * road;
+            vec3 base = mix(vec3(0.1, 0.03, 0.22), vec3(0.04, 0.012, 0.1), road);
             vec3 yel = vec3(1.0, 0.82, 0.25);
-            vec3 col = base + yel * (g * 0.9 + (dash + edgeDash) * (1.0 - far * 0.6));
+            vec3 col = base + yel * (g * 0.9 + (dash + dashGlow) * (1.0 - far * 0.6) + (edgeLine + edgeGlow) * (1.0 - far * 0.4));
+            col += vec3(1.0, 0.5, 0.78) * sheen * 0.3;
             float a = mix(0.72, 0.4, far);
-            a = max(a, max(g, max(dash, edgeDash) * (1.0 - far)));
+            a = max(a, max(g, max(dash, max(edgeLine, edgeGlow)) * (1.0 - far)));
             gl_FragColor = vec4(col, a);
           }`,
       }),
@@ -233,10 +268,10 @@ function Horizon() {
   return <mesh ref={ref} material={mat} renderOrder={5}><planeGeometry args={[1200, 18]} /></mesh>;
 }
 
-function Palms({ clock, mirror = false }) {
+function usePalmMaterial(mirror, fadeNear, fadeFar) {
   const tex = useLoader(THREE.TextureLoader, "/assets/palm-violet.webp");
   tex.colorSpace = THREE.SRGBColorSpace;
-  const mat = useMemo(
+  return useMemo(
     () =>
       new THREE.ShaderMaterial({
         transparent: true,
@@ -245,16 +280,23 @@ function Palms({ clock, mirror = false }) {
         uniforms: { uMap: { value: tex }, uAlpha: { value: mirror ? 0.35 : 1 } },
         vertexShader: VERT,
         fragmentShader: `uniform sampler2D uMap; uniform float uAlpha; varying vec2 vUv; varying float vDepth;
-          void main(){ vec4 c = texture2D(uMap, vUv); float fade = 1.0 - smoothstep(${(PALM_SPAN * 0.72).toFixed(1)}, ${(PALM_SPAN * 0.95).toFixed(1)}, vDepth);
+          void main(){ vec4 c = texture2D(uMap, vUv); float fade = 1.0 - smoothstep(${fadeNear.toFixed(1)}, ${fadeFar.toFixed(1)}, vDepth);
             if (c.a < 0.45) discard; vec3 col = mix(c.rgb, vec3(0.85, 0.45, 0.95), smoothstep(15.0, 55.0, vDepth) * 0.6);
             gl_FragColor = vec4(col, uAlpha * fade); }`,
       }),
-    [tex, mirror]
+    [tex, mirror, fadeNear, fadeFar]
   );
-  const geo = useMemo(() => {
+}
+function usePalmGeometry() {
+  return useMemo(() => {
     const w = PALM_H * (560 / 840);
     return new THREE.PlaneGeometry(w, PALM_H).translate((0.5 - 0.47) * w, PALM_H / 2, 0);
   }, []);
+}
+// Fila de palmeras a la orilla del camino
+function Palms({ clock, mirror = false }) {
+  const mat = usePalmMaterial(mirror, PALM_SPAN * 0.72, PALM_SPAN * 0.95);
+  const geo = usePalmGeometry();
   const palms = useMemo(() => {
     const out = [];
     let seed = 5;
@@ -279,7 +321,25 @@ function Palms({ clock, mirror = false }) {
     <mesh key={i} ref={(el) => (refs.current[i] = el)} geometry={geo} material={mat} renderOrder={mirror ? 3 : 8} frustumCulled={false} />
   ));
 }
-
+// Palmeras sueltas sobre las colinas (mismo tramo que el terreno, a la altura del suelo)
+function ScatterPalms({ clock }) {
+  const mat = usePalmMaterial(false, MT_L * 0.72, MT_L * 0.95);
+  const geo = usePalmGeometry();
+  const refs = useRef([]);
+  useFrame(() => {
+    const tr = clock.current.travel;
+    LAYOUT.palms.forEach((p, i) => {
+      const m = refs.current[i];
+      if (!m) return;
+      const z = -((((p.off - tr) % MT_L) + MT_L) % MT_L) + 3;
+      m.position.set(p.x, p.y, z);
+      m.scale.set(-p.side * p.k, p.k, 1);
+    });
+  });
+  return LAYOUT.palms.map((p, i) => (
+    <mesh key={i} ref={(el) => (refs.current[i] = el)} geometry={geo} material={mat} renderOrder={8} frustumCulled={false} />
+  ));
+}
 function Ready({ onReady }) {
   const n = useRef(0);
   useFrame(() => { if (++n.current === 3) onReady(); });
@@ -328,6 +388,7 @@ export default function HeroPurple3D() {
         <Horizon />
         <Mountains clock={clock} />
         <Palms clock={clock} />
+        <ScatterPalms clock={clock} />
         <Ready onReady={() => document.getElementById("inicio")?.classList.add("rw-scene-on")} />
       </Suspense>
     </Canvas>
