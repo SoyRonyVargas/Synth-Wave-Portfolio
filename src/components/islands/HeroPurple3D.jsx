@@ -1,5 +1,6 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
+import { PerformanceMonitor } from "@react-three/drei";
 import * as THREE from "three";
 
 // Hero morado en React Three Fiber (/home7): sol amarillo gigante, montañas low-poly moradas a los lados,
@@ -38,6 +39,16 @@ function Rig({ mouse, clock }) {
   });
   return null;
 }
+
+// El reflejo solo se ve en la franja pegada al horizonte (uv.y < 0.45): su plano se recorta ahí y no se pintan
+// millones de píxeles invisibles en cada frame.
+const SUN_GEO = new THREE.PlaneGeometry(1, 1);
+const MIRROR_SUN_GEO = (() => {
+  const g = new THREE.PlaneGeometry(1, 0.45).translate(0, -0.275, 0);
+  const pos = g.attributes.position, uv = g.attributes.uv;
+  for (let i = 0; i < uv.count; i++) uv.setY(i, pos.getY(i) + 0.5);
+  return g;
+})();
 
 // Sol amarillo con franjas en la mitad baja
 function Sun({ clock, mirror = false }) {
@@ -82,7 +93,7 @@ function Sun({ clock, mirror = false }) {
     ref.current.scale.set(r * 3, r * 3 * (mirror ? -1 : 1), 1);
     ref.current.position.set(camera.position.x * 0.9, mirror ? -y : y, -D_SKY);
   });
-  return <mesh ref={ref} material={mat} renderOrder={mirror ? 1 : 0}><planeGeometry args={[1, 1]} /></mesh>;
+  return <mesh ref={ref} geometry={mirror ? MIRROR_SUN_GEO : SUN_GEO} material={mat} renderOrder={mirror ? 1 : 0} />;
 }
 
 // Montañas low-poly: caras moradas con luz, aristas lavanda y brillo amarillo del sol a contraluz
@@ -324,103 +335,6 @@ function Palms({ clock, mirror = false }) {
   ));
 }
 
-// Anuncios de neón retro entre las montañas: pasan de vez en cuando, alternando izquierda y derecha (sin marcas reales).
-// Van a la orilla del camino, por dentro de la fila de palmeras (así ni troncos ni montañas los tapan) y bajo las copas.
-// SIGN_SPAN es múltiplo del tramo de palmeras y cada anuncio cae justo entre dos palmeras de su lado: nunca se cruzan.
-const SIGN_SPAN = PALM_SPAN * 3, SIGN_X = 1.95, SIGN_W = 1.2;
-const SIGNS = [
-  { side: -1, off: 26.5, tex: 0 },
-  { side: 1, off: 72.5, tex: 1 },
-  { side: -1, off: 122.5, tex: 2 },
-  { side: 1, off: 168.5, tex: 3 },
-];
-const SIGN_ART = [
-  { top: "RV-85", sub: "ARCADE", c1: "#fff27a", c2: "#ff2fb3", f1: "900 92px Orbitron" },
-  { top: "OPEN", sub: "24 HRS", c1: "#3ff0ff", c2: "#fff27a", f1: "900 100px Orbitron" },
-  { top: "Neon", sub: "MOTEL", c1: "#ff2fb3", c2: "#3ff0ff", f1: "120px 'Mr Dafoe'" },
-  { top: "VHS", sub: "RENTAL", c1: "#7dffcf", c2: "#ff9a5a", f1: "900 100px Orbitron" },
-];
-function drawSign(g, a) {
-  const W = 512, H = 512;
-  g.clearRect(0, 0, W, H);
-  g.fillStyle = "#2a1450";
-  for (const x of [120, 380]) g.fillRect(x, 240, 14, H - 240);         // postes
-  g.fillStyle = "rgba(18,4,40,0.92)";
-  g.fillRect(28, 20, W - 56, 224);
-  g.lineJoin = "round";
-  g.shadowColor = a.c2; g.shadowBlur = 18; g.strokeStyle = a.c2; g.lineWidth = 8;
-  g.strokeRect(36, 28, W - 72, 208);
-  g.shadowBlur = 0; g.lineWidth = 2; g.strokeStyle = "rgba(255,255,255,0.5)";
-  g.strokeRect(50, 42, W - 100, 180);
-  g.textAlign = "center"; g.textBaseline = "middle";
-  g.font = a.f1; g.fillStyle = a.c1; g.shadowColor = a.c1; g.shadowBlur = 22;
-  g.fillText(a.top, W / 2, 112); g.shadowBlur = 8; g.fillStyle = "#fff"; g.globalAlpha = 0.55; g.fillText(a.top, W / 2, 112); g.globalAlpha = 1;
-  g.font = "28px 'Press Start 2P'"; g.fillStyle = a.c2; g.shadowColor = a.c2; g.shadowBlur = 14;
-  g.fillText(a.sub, W / 2, 190);
-  g.shadowBlur = 0;
-}
-function Signs({ clock }) {
-  const texes = useMemo(
-    () =>
-      SIGN_ART.map((a) => {
-        const c = document.createElement("canvas");
-        c.width = 512; c.height = 512;
-        drawSign(c.getContext("2d"), a);
-        const t = new THREE.CanvasTexture(c);
-        t.colorSpace = THREE.SRGBColorSpace;
-        t.anisotropy = 4;
-        t.userData = { c, a };
-        return t;
-      }),
-    []
-  );
-  useEffect(() => {
-    // redibuja cuando cargan las fuentes del sitio (Fontsource)
-    const fonts = ["900 40px Orbitron", "40px 'Mr Dafoe'", "20px 'Press Start 2P'"];
-    Promise.all(fonts.map((f) => document.fonts.load(f))).then(() =>
-      texes.forEach((t) => { drawSign(t.userData.c.getContext("2d"), t.userData.a); t.needsUpdate = true; })
-    );
-  }, [texes]);
-  const mats = useMemo(
-    () =>
-      texes.map((tex, i) =>
-        new THREE.ShaderMaterial({
-          transparent: true,
-          side: THREE.DoubleSide,
-          uniforms: { uMap: { value: tex }, uTime: { value: 0 }, uSeed: { value: i * 3.7 + 1.0 } },
-          vertexShader: VERT,
-          fragmentShader: /* glsl */ `uniform sampler2D uMap; uniform float uTime, uSeed; varying vec2 vUv; varying float vDepth;
-            float h1(float n) { return fract(sin(n * 12.9898) * 43758.5453); }
-            void main(){
-              vec4 c = texture2D(uMap, vUv); if (c.a < 0.08) discard;
-              float tick = floor(uTime * 14.0);
-              float flick = h1(tick + uSeed) > 0.965 ? 0.45 : 1.0;          // parpadeo ocasional del neón
-              vec3 col = mix(c.rgb, c.rgb * flick, step(0.5, vUv.y));
-              col = mix(col, vec3(0.85, 0.45, 0.95), smoothstep(18.0, 55.0, vDepth) * 0.55);
-              float fade = (1.0 - smoothstep(40.0, 58.0, vDepth)) * smoothstep(1.5, 4.0, vDepth);
-              gl_FragColor = vec4(col, c.a * fade); }`,
-        })
-      ),
-    [texes]
-  );
-  const geo = useMemo(() => new THREE.PlaneGeometry(SIGN_W, SIGN_W).translate(0, SIGN_W / 2, 0), []);
-  const refs = useRef([]);
-  useFrame(() => {
-    const tr = clock.current.travel;
-    mats.forEach((m) => (m.uniforms.uTime.value = clock.current.t));
-    SIGNS.forEach((p, i) => {
-      const m = refs.current[i];
-      if (!m) return;
-      const z = -((((p.off - tr) % SIGN_SPAN) + SIGN_SPAN) % SIGN_SPAN) + 3;
-      m.position.set(p.side * SIGN_X, 0, z);
-      m.rotation.y = -p.side * 0.25; // mirando un poco hacia el camino
-    });
-  });
-  return SIGNS.map((p, i) => (
-    <mesh key={i} ref={(el) => (refs.current[i] = el)} geometry={geo} material={mats[p.tex]} renderOrder={9} frustumCulled={false} />
-  ));
-}
-
 function Ready({ onReady }) {
   const n = useRef(0);
   useFrame(() => { if (++n.current === 3) onReady(); });
@@ -430,6 +344,8 @@ function Ready({ onReady }) {
 export default function HeroPurple3D() {
   const [ok, setOk] = useState(false);
   const [visible, setVisible] = useState(true);
+  // resolución de la pantalla (tope 1.25 en retina); si el equipo no aguanta 60 fps baja un escalón
+  const [dpr, setDpr] = useState(() => Math.min(window.devicePixelRatio || 1, 1.25));
   const mouse = useRef(0);
   const clock = useRef({ t: 0, travel: 0 });
   useEffect(() => {
@@ -452,15 +368,15 @@ export default function HeroPurple3D() {
     <Canvas
       className="rw-hero-scene"
       style={{ position: "absolute", inset: 0 }}
-      dpr={[1, 1.5]}
+      dpr={dpr}
       frameloop={visible ? "always" : "never"}
       camera={{ fov: FOV, near: 0.1, far: 600, position: [0, 1, 0] }}
-      gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+      gl={{ alpha: true, antialias: false, powerPreference: "high-performance" }}
     >
+      <PerformanceMonitor onDecline={() => setDpr((d) => Math.max(0.75, +(d - 0.25).toFixed(2)))} />
       <Rig mouse={mouse} clock={clock} />
       <Suspense fallback={null}>
         <Sun clock={clock} />
-        <Sun clock={clock} mirror />
         <City />
         <Mountains clock={clock} mirror />
         <Palms clock={clock} mirror />
@@ -468,7 +384,6 @@ export default function HeroPurple3D() {
         <Horizon />
         <Mountains clock={clock} />
         <Palms clock={clock} />
-        <Signs clock={clock} />
         <Ready onReady={() => document.getElementById("inicio")?.classList.add("rw-scene-on")} />
       </Suspense>
     </Canvas>
