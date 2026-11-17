@@ -1,15 +1,86 @@
 ---
+import site from '../../data/site.json';
+const wa = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(site.whatsappText)}`;
+const LINKS = [
+  ['#sobre-mi', 'Sobre mí'],
+  ['#experiencia', 'Experiencia'],
+  ['#skills', 'Skills'],
+  ['#proyectos', 'Proyectos'],
+  ['#contacto', 'Contacto'],
+];
 ---
 <!-- NAV -->
-  <header style="position: absolute; z-index: 20; top: 0; left: 0; right: 0">
-    <div style="max-width: 1240px; margin: 0 auto; padding: 20px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
-      <a href="#inicio" style="font-family: 'Mr Dafoe', cursive; font-size: 40px; line-height: 1; color: #ff2fb3; text-decoration: none; text-shadow: 0 0 10px #ff2fb3">Rony</a>
-      <nav aria-label="Principal" style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 22px; font-family: 'Press Start 2P', monospace; font-size: 10px; letter-spacing: 1px">
-        <a class="rw-link" href="#sobre-mi" style="color: #3ff0ff; text-decoration: none; padding: 14px 0">Sobre mí</a>
-        <a class="rw-link" href="#experiencia" style="color: #3ff0ff; text-decoration: none; padding: 14px 0">Experiencia</a>
-        <a class="rw-link" href="#skills" style="color: #3ff0ff; text-decoration: none; padding: 14px 0">Skills</a>
-        <a class="rw-link" href="#proyectos" style="color: #3ff0ff; text-decoration: none; padding: 14px 0">Proyectos</a>
+  <header class="rw-nav" style="position: absolute; z-index: 20; top: 0; left: 0; right: 0">
+    <div class="rw-nav-in" style="max-width: 1240px; margin: 0 auto; padding: 20px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+      <a href="#inicio" class="rw-nav-logo" style="font-family: 'Mr Dafoe', cursive; font-size: 40px; line-height: 1; color: #ff2fb3; text-decoration: none; text-shadow: 0 0 10px #ff2fb3">Rony</a>
+      <!-- escritorio: menú en línea -->
+      <nav class="rw-nav-desk" aria-label="Principal" style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 22px; font-family: 'Press Start 2P', monospace; font-size: 10px; letter-spacing: 1px">
+        {LINKS.map(([href, label]) => (
+          <a class="rw-link" href={href} style="color: #3ff0ff; text-decoration: none; padding: 14px 0">{label}</a>
+        ))}
         <a class="rw-btn" href="/Rony_Vargas_CV_2026.pdf" download="Rony_Vargas_CV_2026.pdf" style="color: #0b0420; background: #fff27a; text-decoration: none; padding: 12px 14px; box-shadow: 4px 4px 0 #ff2fb3">CV ↓</a>
       </nav>
     </div>
   </header>
+
+  <!-- móvil: botón hamburguesa (fijo, siempre a la mano) + panel tipo pantalla de selección arcade -->
+  <button type="button" class="rw-burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="rw-menu-panel" data-burger>
+    <span class="rw-burger-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="rw-burger-txt" aria-hidden="true">MENU</span>
+  </button>
+
+  <div id="rw-menu-panel" class="rw-mpanel" role="dialog" aria-modal="true" aria-label="Menú principal" hidden data-mpanel>
+    <div class="rw-mpanel-sun" aria-hidden="true"></div>
+    <div class="rw-mpanel-floor" aria-hidden="true"></div>
+    <div class="rw-mpanel-in">
+      <div class="rw-mpanel-head">
+        <span class="rw-mpanel-logo">Rony</span>
+        <button type="button" class="rw-mpanel-close" aria-label="Cerrar menú" data-mclose>✕</button>
+      </div>
+      <p class="rw-mpanel-kicker" aria-hidden="true">★ SELECT STAGE ★</p>
+      <nav aria-label="Principal (móvil)">
+        <ol class="rw-mpanel-list">
+          {LINKS.map(([href, label], i) => (
+            <li><a href={href} data-mlink><span class="rw-mpanel-n">{String(i + 1).padStart(2, '0')}</span><span>{label}</span></a></li>
+          ))}
+        </ol>
+      </nav>
+      <div class="rw-mpanel-cta">
+        <a class="rw-mpanel-btn rw-mpanel-btn--wa" href={wa} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">✆</span> WHATSAPP</a>
+        <a class="rw-mpanel-btn" href="/Rony_Vargas_CV_2026.pdf" download="Rony_Vargas_CV_2026.pdf">CV ↓</a>
+      </div>
+      <p class="rw-mpanel-foot" aria-hidden="true">PRESS ✕ TO EXIT</p>
+    </div>
+  </div>
+
+<script>
+  const burger = document.querySelector<HTMLButtonElement>('[data-burger]');
+  const panel = document.querySelector<HTMLElement>('[data-mpanel]');
+  if (burger && panel) {
+    const close = (focusBack = true) => {
+      panel.classList.remove('is-open');
+      burger.setAttribute('aria-expanded', 'false');
+      burger.setAttribute('aria-label', 'Abrir menú');
+      document.documentElement.classList.remove('rw-lock');
+      setTimeout(() => { if (!panel.classList.contains('is-open')) panel.hidden = true; }, 250);
+      if (focusBack) burger.focus();
+    };
+    const open = () => {
+      panel.hidden = false;
+      requestAnimationFrame(() => panel.classList.add('is-open'));
+      burger.setAttribute('aria-expanded', 'true');
+      burger.setAttribute('aria-label', 'Cerrar menú');
+      document.documentElement.classList.add('rw-lock');
+      panel.querySelector<HTMLElement>('[data-mlink]')?.focus();
+    };
+    burger.addEventListener('click', () => (panel.classList.contains('is-open') ? close() : open()));
+    panel.querySelector('[data-mclose]')?.addEventListener('click', () => close());
+    // al elegir una sección se cierra el menú y el ancla hace el scroll
+    panel.querySelectorAll('[data-mlink]').forEach((a) => a.addEventListener('click', () => close(false)));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && panel.classList.contains('is-open')) close();
+    });
+    // si se agranda la ventana a escritorio con el menú abierto, se cierra
+    matchMedia('(min-width: 901px)').addEventListener('change', (e) => { if (e.matches && panel.classList.contains('is-open')) close(false); });
+  }
+</script>

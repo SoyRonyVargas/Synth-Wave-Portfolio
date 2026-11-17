@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+
+// Créditos obligatorios de las licencias Creative Commons de los modelos 3D.
+const BY = [
+  ['DeLorean from Back to the Future', 'ni_and_ka', 'https://sketchfab.com/3d-models/delorean-from-back-to-the-future-4e7638898891403ba47f71cf117226b0'],
+  ['Bluetooth music boombox', 'Dani Satellite', 'https://sketchfab.com/3d-models/bluetooth-music-boombox-1f4d347445c8431995355b482f1f1a46'],
+  ['arcade machine', 'Logotyp', 'https://sketchfab.com/3d-models/arcade-machine-a914bf3651e3496ea708dc0782eca212'],
+  ['Retro computer', 'dogflesh', 'https://sketchfab.com/3d-models/retro-computer-9439cb5e09cc44caa63dfbfb299df45f'],
+  ['Floppy Disk 3.5"', 'Kyan0s', 'https://sketchfab.com/3d-models/floppy-disk-35-4a7138b7a3054d83ab47eedd89d9952e'],
+  ['NES Cartridge | Super Mario Bros', 'ConnorMartin', 'https://sketchfab.com/3d-models/nes-cartridge-super-mario-bros-098096e53cfc4f42a2ec833aff20fbea'],
+  ['Atari Joystick', 'Antony', 'https://sketchfab.com/3d-models/atari-joystick-a9c8e3c680d64fedbe5abfb43c9708b5'],
+  ['Groovy Lava Lamp', 'thelaughingdingo', 'https://sketchfab.com/3d-models/groovy-lava-lamp-f2377c043ec1447d8e5e9cab0b9db20e'],
+  ['8 bit Entertainment system', 'odessey', 'https://sketchfab.com/3d-models/8-bit-entertainment-system-ccaea963eee14e9c9ec668a7ce3a73bb'],
+  ['Desk lamp', 'KaramellGlass', 'https://sketchfab.com/3d-models/desk-lamp-7377ec591df04445a1aae370017aaa13'],
+  ['Coffe Cup', 'pavito', 'https://sketchfab.com/3d-models/coffe-cup-42e3296a290843819b437df123569a09'],
+  ['Icon Folder', "Des'Lee", 'https://sketchfab.com/3d-models/icon-folder-a3ada26dc877486db8acf03472aa17f8'],
+  ['Envelope', 'DrewA', 'https://sketchfab.com/3d-models/envelope-196ab6a55cbd4b999beccbce3c7b92a0'],
+  ['Low Poly Dolphin', 'mano1creative', 'https://sketchfab.com/3d-models/low-poly-dolphin-3a7112396c7642df9201094a9b3634b0'],
+];
+const OTHER = [
+  ['Cassette Tape', 'joshtmc', 'https://sketchfab.com/3d-models/cassette-tape-4613411c569d4185a2e07f31b1bf9e49', 'CC BY-SA 4.0', 'https://creativecommons.org/licenses/by-sa/4.0/', 'Los renders de los casetes se comparten bajo la misma licencia.'],
+  ['Bust of a rhetorician', 'Geoffrey Marchal', 'https://sketchfab.com/3d-models/bust-of-a-rhetorician-6a08e5177c594f13b9da79c59287f1f3', 'CC BY-NC-SA 4.0', 'https://creativecommons.org/licenses/by-nc-sa/4.0/', ''],
+];
+---
+<Base title="Créditos 3D · Rony Vargas" noindex>
+  <main style="min-height: 100vh; background: radial-gradient(ellipse at 50% 0%, #22104a 0%, #0b0420 60%); color: #e6d9fb; font-family: 'IBM Plex Mono', monospace">
+    <div style="max-width: 820px; margin: 0 auto; padding: 72px 24px 80px">
+      <p style="margin: 0 0 18px; font-family: 'Press Start 2P', monospace; font-size: 11px; letter-spacing: 3px; color: #fff27a">C:\RONY\CREDITOS.TXT</p>
+      <h1 style="margin: 0 0 18px; font-family: 'Londrina Solid', sans-serif; font-weight: 900; font-size: clamp(40px, 6vw, 64px); line-height: 1; color: #fff">Créditos 3D</h1>
+      <p style="margin: 0 0 36px; font-size: 15px; line-height: 1.7">Los objetos del sitio son renders hechos a partir de estos modelos de Sketchfab, con materiales, etiquetas e iluminación modificados.</p>
+
+      <h2 style="margin: 0 0 14px; font-family: 'Press Start 2P', monospace; font-weight: 400; font-size: 11px; color: #3ff0ff">LICENCIA <a href="https://creativecommons.org/licenses/by/4.0/" style="color: #3ff0ff">CC BY 4.0</a></h2>
+      <ul style="margin: 0 0 36px; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 14px; line-height: 1.6">
+        {BY.map(([t, a, u]) => <li>▸ <a href={u} style="color: #7dffcf">“{t}”</a> por {a}</li>)}
+      </ul>
+
+      <h2 style="margin: 0 0 14px; font-family: 'Press Start 2P', monospace; font-weight: 400; font-size: 11px; color: #ff8ad8">OTRAS LICENCIAS</h2>
+      <ul style="margin: 0 0 48px; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 14px; line-height: 1.6">
+        {OTHER.map(([t, a, u, l, lu, note]) => <li>▸ <a href={u} style="color: #7dffcf">“{t}”</a> por {a} · <a href={lu} style="color: #ff8ad8">{l}</a>{note && <> · {note}</>}</li>)}
+      </ul>
+
+      <a href="/" style="font-family: 'Press Start 2P', monospace; font-size: 10px; color: #fff27a; text-decoration: none">◀ VOLVER AL SITIO</a>
+    </div>
+  </main>
+</Base>

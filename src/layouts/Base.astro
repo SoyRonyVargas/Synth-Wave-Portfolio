@@ -17,7 +17,7 @@ const ogImage = new URL('/og.png', Astro.site ?? site.url).href;
 const person = {
   '@context': 'https://schema.org', '@type': 'Person', name: site.name, jobTitle: site.role, url: site.url,
   address: { '@type': 'PostalAddress', addressLocality: 'Cancún', addressRegion: 'Quintana Roo', addressCountry: 'MX' },
-  knowsAbout: ['Node.js', 'React', 'Vue.js', 'Nest.js', 'Next.js', 'SQL Server', 'MySQL'],
+  knowsAbout: ['Node.js', 'React', 'TypeScript', 'Next.js', 'Vue.js', 'Nest.js', 'Python', 'Django', 'SQL Server', 'MySQL', 'MongoDB', 'AWS', 'Stripe', 'REST APIs'],
   sameAs: [site.linkedin, site.github].filter(Boolean),
 };
 ---

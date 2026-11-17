@@ -1,0 +1,11 @@
+---
+import site from '../../data/site.json';
+const wa = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(site.whatsappText)}`;
+---
+<!-- botón flotante de WhatsApp (sin logo de marca: teléfono neón en la paleta del sitio) -->
+<a class="rw-wa" href={wa} target="_blank" rel="noopener noreferrer" aria-label="Escríbeme por WhatsApp (se abre en una pestaña nueva)">
+  <span class="rw-wa-ico" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M6.6 3.5h2.6l1.4 4.2-2 1.5a11 11 0 0 0 6.2 6.2l1.5-2 4.2 1.4v2.6c0 1-.8 1.8-1.8 1.8A16.5 16.5 0 0 1 4.8 5.3c0-1 .8-1.8 1.8-1.8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+  </span>
+  <span class="rw-wa-txt">WHATSAPP</span>
+</a>

@@ -63,7 +63,7 @@ Contexto del proyecto para Claude. Resume todo lo decidido en el chat de diseño
 - **Toda propuesta nueva debe seguir el vocabulario visual de la página.** El dueño rechaza diseños que "no siguen la regla de diseño de cómo está hecho lo demás".
 - Siempre synthwave/retrowave. Las transiciones entre secciones deben ser **sutiles y chicas (60–110 px)**.
 - Cuando pida propuestas: hacer variantes, cada una con su motivo y su contra (pros y contras).
-- **Modelos 3D solo con licencia CC BY o CC0. Nada de NonCommercial (NC).** Se descargan de Sketchfab en GLB y cada uno lleva su crédito en el footer.
+- **Modelos 3D solo con licencia CC BY o CC0. Nada de NonCommercial (NC).** Se descargan de Sketchfab en GLB y cada uno lleva su crédito en `src/pages/creditos.astro` (el footer solo enlaza a `/creditos/`).
 - **Sin logos de marcas reales.** Ya se taparon "Keystone" y "Wurlitzer" y se cambiaron etiquetas por "RV".
 - No copiar arte con derechos (ilustraciones o fan art de terceros).
 - Responde en español, de forma breve y clara.
@@ -110,7 +110,8 @@ Contexto del proyecto para Claude. Resume todo lo decidido en el chat de diseño
 
 - [ ] **Busto** (`public/assets/bust.webp`): licencia CC BY-NC-SA. Reemplazarlo por uno CC BY o CC0 y actualizar el footer.
 - [ ] **Imagen anime** (`public/assets/fondo-rv.webp`): confirmar autor y permiso, o reemplazarla.
-- [ ] Foto real en lugar de `[TU FOTO]` (`About.astro`).
+- [x] Foto real: `public/assets/rony.webp` (de `IMG_6383.jpg`, 720×900). Ojo: el fondo tiene el letrero neón "SOPHIA MIA" (nombre de un lugar real).
+- [ ] **Música** (`public/music/*.mp3`, `src/lib/music.js`, `SoundToggle.jsx`): canciones del álbum de GTA VI, con derechos. Confirmar licencia o cambiarlas por música libre antes de publicar.
 - [ ] Quitar la etiqueta "3D PENDIENTE · TELÉFONO DE DISCO" (`Contact.astro`) o poner el modelo.
 - [ ] Opcional: pasar Sobre mí, Formación y Contacto a JSON como las demás secciones.
 - [ ] Opcional: modelos que faltan (videocasetera, teléfono de disco), siempre CC BY o CC0.

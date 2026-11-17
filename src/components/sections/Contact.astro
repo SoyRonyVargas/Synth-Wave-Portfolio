@@ -1,55 +1,721 @@
 ---
+import site from '../../data/site.json';
+const { variant = 'default' } = Astro.props;
+const wa = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(site.whatsappText)}`;
 ---
-<!-- CONTACTO: salón de arcade -->
-  <section id="contacto" style="position: relative; overflow: hidden; background: radial-gradient(ellipse at 50% 45%, #2a1260 0%, #0b0420 65%)">
+
+{variant === 'default' && (
+  <section id="contacto" style="position: relative; overflow: hidden; background: radial-gradient(ellipse at 50% 40%, #2a1260 0%, #0b0420 65%)">
+    <div class="rw-stars-static" aria-hidden="true" style="position: absolute; inset: 0 0 45% 0; opacity: .7"></div>
     <!-- máquinas de fondo -->
-    <img class="rw-hide-sm" src="/assets/arcade.webp" alt="" style="position: absolute; z-index: 0; left: max(2%, calc(50% - 560px)); bottom: 150px; width: 250px; height: auto; opacity: .35; filter: brightness(.55) saturate(1.2) hue-rotate(40deg) blur(1px)">
-    <img class="rw-hide-sm" src="/assets/arcade.webp" alt="" style="position: absolute; z-index: 0; right: max(2%, calc(50% - 560px)); bottom: 150px; width: 250px; height: auto; opacity: .35; filter: brightness(.55) saturate(1.2) hue-rotate(-60deg) blur(1px); transform: scaleX(-1)">
-    <img class="rw-hide-sm" src="/assets/arcade.webp" alt="" style="position: absolute; z-index: 0; left: max(0%, calc(50% - 720px)); bottom: 170px; width: 190px; height: auto; opacity: .18; filter: brightness(.5) blur(2px)">
-    <img class="rw-hide-sm" src="/assets/arcade.webp" alt="" style="position: absolute; z-index: 0; right: max(0%, calc(50% - 720px)); bottom: 170px; width: 190px; height: auto; opacity: .18; filter: brightness(.5) blur(2px); transform: scaleX(-1)">
-    <figure class="rw-sketch rw-hide-sm rw-float " style="position: absolute; z-index: 1; right: max(4%, calc(50% - 520px)); bottom: 120px; width: 210px; rotate: -6deg;">
-        <svg viewBox="0 0 230 185" role="img" aria-label="Boceto: teléfono de disco">
-          <g fill="none" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
-            <path d="M34 168 L54 86 L176 86 L196 168 Z" stroke="#ff2fb3" fill="rgba(255,47,179,.07)"></path>
-            <path class="rw-sk-handset" d="M22 74 C22 42 64 40 74 56 L156 56 C166 40 208 42 208 74 L188 82 C182 70 170 70 166 76 L64 76 C60 70 48 70 42 82 Z" stroke="#3ff0ff"></path>
-            <circle cx="115" cy="126" r="32" stroke="#fff27a"></circle>
-            <circle cx="115" cy="126" r="10" stroke="#fff27a"></circle>
-            <g stroke="#fff27a" stroke-width="2"><circle cx="115" cy="102" r="5"></circle><circle cx="132" cy="108" r="5"></circle><circle cx="139" cy="124" r="5"></circle><circle cx="133" cy="141" r="5"></circle><circle cx="116" cy="149" r="5"></circle><circle cx="98" cy="142" r="5"></circle><circle cx="91" cy="126" r="5"></circle><circle cx="98" cy="109" r="5"></circle></g>
-            <path d="M196 150 C214 150 206 162 220 162 C232 162 222 176 214 178" stroke="#c9c9d6" stroke-width="2"></path>
-          </g>
-        </svg>
-        <figcaption class="rw-sketch-tag">3D PENDIENTE · TELÉFONO DE DISCO</figcaption>
-      </figure>
+    <img class="rw-hide-sm" src="/assets/arcade.webp" alt="" aria-hidden="true" style="position: absolute; z-index: 0; left: max(0%, calc(50% - 760px)); bottom: 170px; width: 190px; height: auto; opacity: .18; filter: brightness(.5) blur(2px)">
+    <img class="rw-hide-sm" src="/assets/arcade.webp" alt="" aria-hidden="true" style="position: absolute; z-index: 0; right: max(0%, calc(50% - 760px)); bottom: 170px; width: 190px; height: auto; opacity: .18; filter: brightness(.5) blur(2px); transform: scaleX(-1)">
     <!-- piso con reflejo -->
     <div aria-hidden="true" style="position: absolute; z-index: 0; left: 0; right: 0; bottom: 0; height: 190px; overflow: hidden; border-top: 2px solid #ff2fb3; box-shadow: 0 -6px 30px rgba(255,47,179,.5); background: #12021f; perspective: 260px">
       <div class="rw-about-floor" style="opacity: .7"></div>
     </div>
 
-    <div style="position: relative; z-index: 2; max-width: 1000px; margin: 0 auto; padding: 96px 24px 0; display: flex; flex-direction: column; align-items: center">
-      <p style="margin: 0 0 22px; font-family: 'Press Start 2P', monospace; font-size: 11px; letter-spacing: 3px; color: #fff27a">05 · CONTACTO</p>
-      <h2 class="rw-blink-soft" style="margin: 0 0 30px; text-align: center; font-weight: 400; line-height: 1"><span class="rw-chrome-wrap" style="font-size: clamp(40px, 6.4vw, 92px)"><span class="rw-chrome-depth" aria-hidden="true">INSERT COIN</span><span class="rw-chrome">INSERT COIN</span></span></h2>
-      <div style="position: relative; width: 100%; max-width: 460px">
-        <img src="/assets/arcade.webp" alt="Máquina arcade con menú de contacto en la pantalla" style="position: relative; z-index: 1; display: block; width: 100%; height: auto; filter: drop-shadow(0 0 40px rgba(255,47,179,.35))">
-        <!-- moneda cayendo -->
-        <div class="rw-coin" aria-hidden="true">25¢</div>
-        <div style="position: absolute; z-index: 2; left: 19%; top: 14.8%; width: 68.5%; height: 31%; padding: 6% 7%; display: flex; flex-direction: column; justify-content: center; overflow: hidden; border-radius: 6px; background: radial-gradient(ellipse at center, rgba(40,10,90,.65), rgba(3,3,10,.9) 80%)">
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8%">
-            <p style="margin: 0; font-family: 'Press Start 2P', monospace; font-size: clamp(8px, 2.6vw, 12px); color: #fff">¿CONTINUE?</p>
-            <div aria-hidden="true" style="height: 22px; overflow: hidden; font-family: 'Press Start 2P', monospace; font-size: 18px; line-height: 22px; color: #ff3355">
-              <div class="rw-countdown" style="display: flex; flex-direction: column"><span>9</span><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span><span>0</span></div>
+    <div style="position: relative; z-index: 2; max-width: 1120px; margin: 0 auto; padding: 96px 24px 0">
+      <div style="text-align: center">
+        <p style="margin: 0 0 22px; font-family: 'Press Start 2P', monospace; font-size: 11px; letter-spacing: 3px; color: #fff27a">05 · CONTACTO</p>
+        <h2 class="rw-blink-soft" style="position: relative; display: inline-block; margin: 0 0 18px; font-weight: 400; line-height: 1">
+          <span class="rw-chrome-wrap" style="font-size: clamp(40px, 6.4vw, 92px)"><span class="rw-chrome-depth" aria-hidden="true">INSERT COIN</span><span class="rw-chrome">INSERT COIN</span></span>
+          <span class="rw-script" aria-hidden="true" style="position: absolute; right: -8px; bottom: -32px; white-space: nowrap; font-size: clamp(30px, 3.6vw, 52px); transform: rotate(-6deg); color: #3ff0ff; -webkit-text-stroke: 1px #e6fdff; text-shadow: 0 0 6px #3ff0ff, 0 0 18px #3ff0ff">player 2</span>
+        </h2>
+        <p style="margin: 30px auto 0; max-width: 620px; font-size: 16px; line-height: 1.6; color: #d9c8f5">¿Tienes un proyecto o una vacante? Escribe tu nombre en la tabla, mete la moneda y el mensaje me llega directo. Respondo en menos de 24 horas.</p>
+      </div>
+
+      <div class="ct-grid">
+        <!-- gabinete arcade con el menú de accesos rápidos -->
+        <div class="ct-arcade">
+          <div style="position: relative; width: 100%">
+            <img src="/assets/arcade.webp" alt="Máquina arcade con menú de contacto en la pantalla" style="position: relative; z-index: 1; display: block; width: 100%; height: auto; filter: drop-shadow(0 0 40px rgba(255,47,179,.35))">
+            <div class="rw-coin" aria-hidden="true" style="left: 58.5%; top: 71%">25¢</div>
+            <div style="position: absolute; z-index: 2; left: 17.8%; top: 13.4%; width: 70.4%; height: 31.8%; transform: skewX(-2.2deg); transform-origin: top center; padding: 5.5% 6%; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; border-radius: 12px; border: 2px solid rgba(63,240,255,.45); background: linear-gradient(180deg, #090218 0%, #1d083d 62%, #4a0e5c 80%, #12021f 80.5%); box-shadow: 0 0 0 6px #000, inset 0 0 26px rgba(63,240,255,.22), 0 0 22px rgba(255,47,179,.3)">
+              <div aria-hidden="true" style="position: absolute; left: 50%; top: 48%; width: 44%; aspect-ratio: 1; translate: -50% 0; border-radius: 50%; opacity: .28; background: linear-gradient(180deg, #fff27a 0%, #ff5e7e 65%, #ff2fb3 100%); -webkit-mask-image: linear-gradient(#000 0 58%, transparent 58% 64%, #000 64% 74%, transparent 74% 80%, #000 80%); mask-image: linear-gradient(#000 0 58%, transparent 58% 64%, #000 64% 74%, transparent 74% 80%, #000 80%); pointer-events: none"></div>
+              <div aria-hidden="true" style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; padding-bottom: 4px; border-bottom: 1px solid rgba(63,240,255,.28); font-family: 'Press Start 2P', monospace; font-size: clamp(6px, 1.4vw, 8px); letter-spacing: .5px">
+                <span style="color: #ff8ad8">1UP <span style="color: #fff">002026</span></span>
+                <span style="color: #3ff0ff">SELECT</span>
+              </div>
+              <nav class="rw-menu" aria-label="Contacto directo" style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 5px; font-family: 'Press Start 2P', monospace; font-size: clamp(7px, 1.6vw, 9.5px)">
+                <a href="mailto:soyronyvargas@gmail.com" style="display: flex; align-items: center; justify-content: space-between; padding: 7px 9px; border-radius: 4px; border: 1.5px solid rgba(63,240,255,.4); background: rgba(11,4,32,.82); color: #7dffcf; text-decoration: none"><span>▶ EMAIL</span><span aria-hidden="true" style="font-size: .8em; opacity: .75">✉</span></a>
+                <a href="https://linkedin.com/in/rony-vargas-212bb2182" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: space-between; padding: 7px 9px; border-radius: 4px; border: 1.5px solid rgba(63,240,255,.4); background: rgba(11,4,32,.82); color: #7dffcf; text-decoration: none"><span>▶ LINKEDIN</span><span aria-hidden="true" style="font-size: .8em; opacity: .75">↗</span></a>
+                <a href="https://github.com/SoyRonyVargas" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: space-between; padding: 7px 9px; border-radius: 4px; border: 1.5px solid rgba(63,240,255,.4); background: rgba(11,4,32,.82); color: #7dffcf; text-decoration: none"><span>▶ GITHUB</span><span aria-hidden="true" style="font-size: .8em; opacity: .75">↗</span></a>
+                <a href="/Rony_Vargas_CV_2026.pdf" download="Rony_Vargas_CV_2026.pdf" style="display: flex; align-items: center; justify-content: space-between; padding: 7px 9px; border-radius: 4px; border: 1.5px solid rgba(255,47,179,.55); background: rgba(42,12,78,.85); color: #fff27a; text-decoration: none"><span>▶ DESCARGAR CV</span><span aria-hidden="true" style="font-size: .8em">↓</span></a>
+              </nav>
+              <div aria-hidden="true" style="position: absolute; inset: 0; z-index: 2; pointer-events: none; background: repeating-linear-gradient(rgba(0,0,0,.28) 0 2px, transparent 2px 4px)"></div>
             </div>
           </div>
-          <nav class="rw-menu" aria-label="Contacto" style="display: flex; flex-direction: column; gap: 2px; font-family: 'Press Start 2P', monospace; font-size: clamp(8px, 2.3vw, 11px)">
-            <a href="mailto:soyronyvargas@gmail.com" style="display: block; padding: 9px 8px; color: #7dffcf; text-decoration: none">▶ EMAIL</a>
-            <a href="https://linkedin.com/in/rony-vargas-212bb2182" style="display: block; padding: 9px 8px; color: #7dffcf; text-decoration: none">▶ LINKEDIN</a>
-            <a href="https://github.com/SoyRonyVargas" style="display: block; padding: 9px 8px; color: #7dffcf; text-decoration: none">▶ GITHUB</a>
-            <a href="/Rony_Vargas_CV_2026.pdf" download="Rony_Vargas_CV_2026.pdf" style="display: block; padding: 9px 8px; color: #7dffcf; text-decoration: none">▶ DESCARGAR CV</a>
-          </nav>
-          <div aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(rgba(0,0,0,.25) 0 2px, transparent 2px 4px), linear-gradient(115deg, transparent 55%, rgba(255,255,255,.06) 55% 65%, transparent 65%)"></div>
+          <img src="/assets/arcade.webp" alt="" aria-hidden="true" style="display: block; width: 100%; height: 120px; object-fit: cover; object-position: bottom; transform: scaleY(-1); opacity: .22; -webkit-mask-image: linear-gradient(to top, #000, transparent); mask-image: linear-gradient(to top, #000, transparent)">
         </div>
-        <!-- reflejo en el piso -->
-        <img src="/assets/arcade.webp" alt="" style="display: block; width: 100%; height: 140px; object-fit: cover; object-position: bottom; transform: scaleY(-1); opacity: .22; -webkit-mask-image: linear-gradient(to top, #000, transparent); mask-image: linear-gradient(to top, #000, transparent)">
+
+        <!-- consola "HIGH SCORE ENTRY" con el formulario -->
+        <div class="ct-cab">
+          <div class="ct-marquee" aria-hidden="true">
+            <span>★ RV-ARCADE · MESSAGE ENTRY ★</span>
+            <span class="ct-credit">CREDIT <b data-ct-credit>00</b></span>
+          </div>
+
+          <div class="ct-screen">
+            <div class="ct-screen-sun" aria-hidden="true"></div>
+            <div class="ct-screen-grid" aria-hidden="true"></div>
+
+            <form class="ct-form" name="contacto" method="POST" action="/?enviado=1#contacto" data-netlify="true" netlify-honeypot="bot-field" data-ct-form novalidate>
+              <input type="hidden" name="form-name" value="contacto">
+              <p class="ct-hp" aria-hidden="true"><label>No llenar: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+
+              <div class="ct-hud" aria-hidden="true">
+                <span style="color: #ff8ad8">2UP <span style="color: #fff">READY</span></span>
+                <span style="color: #fff27a">SCORE <span data-ct-score style="color: #3ff0ff">000000</span></span>
+              </div>
+
+              <div class="ct-row">
+                <div class="ct-field">
+                  <label for="ct-name">PLAYER NAME</label>
+                  <input id="ct-name" name="nombre" type="text" required maxlength="60" autocomplete="name" placeholder="TU NOMBRE">
+                </div>
+                <div class="ct-field">
+                  <label for="ct-email">EMAIL</label>
+                  <input id="ct-email" name="email" type="email" required maxlength="120" autocomplete="email" placeholder="tu@correo.com">
+                </div>
+              </div>
+
+              <fieldset class="ct-modes">
+                <legend>GAME MODE</legend>
+                <label><input type="radio" name="motivo" value="Proyecto" checked><span>PROYECTO</span></label>
+                <label><input type="radio" name="motivo" value="Vacante"><span>VACANTE</span></label>
+                <label><input type="radio" name="motivo" value="Freelance"><span>FREELANCE</span></label>
+                <label><input type="radio" name="motivo" value="Saludo"><span>SALUDO</span></label>
+              </fieldset>
+
+              <div class="ct-field">
+                <label for="ct-msg">MENSAJE <span class="ct-count" aria-hidden="true"><span data-ct-count>0</span>/1000</span></label>
+                <textarea id="ct-msg" name="mensaje" required minlength="10" maxlength="1000" rows="5" placeholder="Cuéntame del proyecto, la vacante o la idea..."></textarea>
+              </div>
+
+              <div class="ct-controls">
+                <div class="ct-slot" aria-hidden="true">
+                  <span class="ct-slot-mouth"></span>
+                  <span class="ct-slot-txt">25¢</span>
+                </div>
+                <button type="submit" class="ct-start" data-ct-submit>
+                  <span class="ct-start-btn" aria-hidden="true"></span>
+                  <span class="ct-start-txt">START<small>ENVIAR MENSAJE</small></span>
+                </button>
+                <img class="ct-env" src="/assets/envelope.webp" alt="" aria-hidden="true" data-ct-env>
+              </div>
+
+              <p class="ct-status" role="status" aria-live="polite" data-ct-status>PRESS START · LLENA LOS CAMPOS</p>
+            </form>
+
+            <div class="ct-scan" aria-hidden="true"></div>
+          </div>
+
+          <div class="ct-foot" aria-hidden="true">
+            <span>CRT · RV-85</span>
+            <span class="ct-led">● ONLINE · CANCÚN MX</span>
+          </div>
+        </div>
       </div>
-      <p style="position: relative; z-index: 2; margin: 0; padding: 20px 0 60px; font-size: 15px; color: #e6d9fb; text-align: center">¿Tienes un proyecto o una vacante? Escríbeme a <a href="mailto:soyronyvargas@gmail.com" style="color: #fff27a">soyronyvargas@gmail.com</a></p>
+
+      <div class="ct-alt">
+        <p style="margin: 0; font-size: 15px; color: #e6d9fb">¿Prefieres algo más directo?</p>
+        <div class="ct-alt-btns">
+          <a class="ct-alt-btn ct-alt-btn--wa" href={wa} target="_blank" rel="noopener noreferrer"><span aria-hidden="true">✆</span> WHATSAPP · +52 984 435 0872</a>
+          <a class="ct-alt-btn" href="mailto:soyronyvargas@gmail.com"><span aria-hidden="true">✉</span> soyronyvargas@gmail.com</a>
+        </div>
+      </div>
+    </div>
+
+  </section>
+)}
+
+{variant === 'home1' && (
+  <section id="contacto" style="position: relative; overflow: hidden; background: radial-gradient(ellipse at 50% 35%, #2a1260 0%, #0b0420 70%); border-top: 2px solid #3a1d6e">
+    <div class="rw-stars-static" aria-hidden="true" style="position: absolute; inset: 0 0 35% 0; opacity: .75"></div>
+    <!-- máquinas de fondo a los lados -->
+    <img class="rw-hide-sm" src="/assets/arcade.webp" alt="" aria-hidden="true" style="position: absolute; z-index: 0; left: max(1%, calc(50% - 690px)); bottom: 130px; width: 230px; height: auto; opacity: .32; filter: brightness(.6) saturate(1.2) hue-rotate(25deg) blur(1px)">
+    <img class="rw-hide-sm" src="/assets/arcade.webp" alt="" aria-hidden="true" style="position: absolute; z-index: 0; right: max(1%, calc(50% - 690px)); bottom: 130px; width: 230px; height: auto; opacity: .32; filter: brightness(.6) saturate(1.2) hue-rotate(-45deg) blur(1px); transform: scaleX(-1)">
+
+    <!-- piso de cuadrícula synthwave -->
+    <div aria-hidden="true" style="position: absolute; z-index: 0; left: 0; right: 0; bottom: 0; height: 190px; overflow: hidden; border-top: 2px solid #ff2fb3; box-shadow: 0 -6px 30px rgba(255,47,179,.55); background: #12021f; perspective: 260px">
+      <div class="rw-about-floor" style="opacity: .75"></div>
+    </div>
+
+    <div style="position: relative; z-index: 2; max-width: 1120px; margin: 0 auto; padding: 96px 24px 110px">
+      <div style="text-align: center; margin-bottom: 48px">
+        <p style="margin: 0 0 18px; font-family: 'Press Start 2P', monospace; font-size: 11px; letter-spacing: 3px; color: #fff27a">05 · CONTACTO</p>
+        <h2 style="position: relative; display: inline-block; margin: 0 0 18px; font-weight: 400; line-height: 1">
+          <span class="rw-chrome-wrap" style="font-size: clamp(40px, 6.4vw, 92px)">
+            <span class="rw-chrome-depth" aria-hidden="true">INSERT COIN</span>
+            <span class="rw-chrome">INSERT COIN</span>
+          </span>
+          <span class="rw-script" aria-hidden="true" style="position: absolute; right: -12px; bottom: -32px; font-size: clamp(32px, 3.8vw, 54px); transform: rotate(-6deg); color: #3ff0ff; -webkit-text-stroke: 1px #e6fdff; text-shadow: 0 0 6px #3ff0ff, 0 0 18px #3ff0ff">arcade cabinet</span>
+        </h2>
+        <p style="margin: 34px auto 0; max-width: 600px; font-size: 16px; line-height: 1.6; color: #d9c8f5">
+          Elige una opción en el monitor CRT para iniciar partida juntos: escríbeme directo, revisa mi código o descarga mi CV.
+        </p>
+      </div>
+
+      <!-- Consola Arcade de 2 columnas: Monitor CRT frontal + Panel de control Player 1 -->
+      <div class="xp-deck" style="border-color: #ff2fb3; box-shadow: 0 0 0 6px #0b0420, 0 30px 60px rgba(0,0,0,.65), 0 0 55px rgba(255,47,179,.28)">
+        <!-- Marquesina luminosa superior estilo arcade japonés/ochentero -->
+        <div style="margin: -6px -6px 24px; padding: 14px 20px; border-radius: 10px; border: 2px solid #fff27a; background: linear-gradient(90deg, #ff2fb3 0%, #6a1b7a 50%, #3ff0ff 100%); box-shadow: 0 0 25px rgba(255,47,179,.5), inset 0 0 16px rgba(255,255,255,.35); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+          <span style="font-family: 'Press Start 2P', monospace; font-size: 10px; color: #fff27a; text-shadow: 2px 2px 0 #0b0420">★ RV-ARCADE · MODEL 1985 ★</span>
+          <span style="font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 14px; letter-spacing: 3px; color: #fff; text-shadow: 2px 2px 0 #0b0420">PLAYER 1 READY · CANCÚN MX</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; align-items: stretch">
+          <!-- Monitor CRT frontal grande -->
+          <div class="k2-tv" style="padding: 20px 20px 30px; border-color: #3ff0ff; box-shadow: 0 0 35px rgba(63,240,255,.22), inset 0 2px 0 rgba(255,255,255,.15)">
+            <div style="position: relative; border-radius: 20px; overflow: hidden; padding: 22px 22px 20px; background: linear-gradient(180deg, #07021a 0%, #1d083d 58%, #4a0e5c 76%, #12021f 76.5%); box-shadow: inset 0 0 50px rgba(0,0,0,.9), inset 0 0 0 3px #0b0420; min-height: 360px; display: flex; flex-direction: column; justify-content: space-between">
+              <!-- Sol y grilla de fondo dentro del CRT -->
+              <div aria-hidden="true" style="position: absolute; left: 50%; top: 40%; width: 150px; height: 150px; translate: -50% 0; border-radius: 50%; opacity: .32; background: linear-gradient(180deg, #fff27a 0%, #ff5e7e 65%, #ff2fb3 100%); -webkit-mask-image: linear-gradient(#000 0 58%, transparent 58% 64%, #000 64% 74%, transparent 74% 80%, #000 80%); mask-image: linear-gradient(#000 0 58%, transparent 58% 64%, #000 64% 74%, transparent 74% 80%, #000 80%); pointer-events: none"></div>
+              <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 76%; bottom: 0; opacity: .4; background-image: linear-gradient(rgba(255,47,179,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(63,240,255,.6) 1px, transparent 1px); background-size: 24px 14px; pointer-events: none"></div>
+
+              <!-- HUD superior -->
+              <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 2px solid rgba(63,240,255,.3); font-family: 'Press Start 2P', monospace; font-size: 10px">
+                <span style="color: #ff2fb3">1UP <span style="color: #fff">002026</span></span>
+                <span style="color: #fff27a">HI-SCORE <span style="color: #3ff0ff">999990</span></span>
+              </div>
+
+              <!-- ¿CONTINUE? + Contador funcional -->
+              <div style="position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 14px 0; padding: 10px 14px; border-radius: 8px; background: rgba(11,4,32,.78); border: 1.5px solid rgba(255,242,122,.4)">
+                <div>
+                  <p style="margin: 0 0 4px; font-family: 'Press Start 2P', monospace; font-size: clamp(12px, 2vw, 15px); color: #fff27a; text-shadow: 0 0 10px rgba(255,242,122,.7)">¿CONTINUE?</p>
+                  <p style="margin: 0; font-family: 'Press Start 2P', monospace; font-size: 8px; color: #7dffcf">SELECT A CHANNEL TO START</p>
+                </div>
+                <div aria-hidden="true" style="height: 28px; overflow: hidden; font-family: 'Press Start 2P', monospace; font-size: 24px; line-height: 28px; color: #ff3355; text-shadow: 0 0 12px rgba(255,51,85,.9)">
+                  <div class="rw-countdown" style="display: flex; flex-direction: column"><span>9</span><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span><span>0</span></div>
+                </div>
+              </div>
+
+              <!-- Menú de contacto grande y claro -->
+              <nav class="rw-menu" aria-label="Contacto" style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 8px; font-family: 'Press Start 2P', monospace; font-size: 11px">
+                <a href="mailto:soyronyvargas@gmail.com" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 6px; border: 2px solid rgba(63,240,255,.5); background: rgba(11,4,32,.88); color: #7dffcf; text-decoration: none">
+                  <span>▶ 01 · ENVIAR EMAIL</span>
+                  <span style="font-size: 9px; color: #fff27a">1P START ✉</span>
+                </a>
+                <a href="https://linkedin.com/in/rony-vargas-212bb2182" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 6px; border: 2px solid rgba(63,240,255,.5); background: rgba(11,4,32,.88); color: #7dffcf; text-decoration: none">
+                  <span>▶ 02 · LINKEDIN</span>
+                  <span style="font-size: 9px; color: #3ff0ff">CONECTAR ↗</span>
+                </a>
+                <a href="https://github.com/SoyRonyVargas" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 6px; border: 2px solid rgba(63,240,255,.5); background: rgba(11,4,32,.88); color: #7dffcf; text-decoration: none">
+                  <span>▶ 03 · GITHUB</span>
+                  <span style="font-size: 9px; color: #b26bff">REPOS ↗</span>
+                </a>
+                <a href="/Rony_Vargas_CV_2026.pdf" download="Rony_Vargas_CV_2026.pdf" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 6px; border: 2px solid #ff2fb3; background: rgba(42,12,78,.9); color: #fff27a; text-decoration: none">
+                  <span>▶ 04 · DESCARGAR CV</span>
+                  <span style="font-size: 9px; color: #ff8ad8">PDF 2026 ↓</span>
+                </a>
+              </nav>
+
+              <p class="rw-blink" aria-hidden="true" style="position: relative; z-index: 1; margin: 14px 0 0; text-align: center; font-family: 'Press Start 2P', monospace; font-size: 9px; color: #ff2fb3">CREDIT 01 · PRESS ANY OPTION</p>
+
+              <!-- Scanlines CRT -->
+              <div aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 2px, transparent 2px 4px)"></div>
+            </div>
+            <!-- Botones físicos del monitor -->
+            <div aria-hidden="true" style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-family: 'Press Start 2P', monospace; font-size: 8px; color: #9d8cc4">
+              <span>CRT · TRINITRON RV-85</span>
+              <span style="color: #7dffcf">● POWER ON</span>
+            </div>
+          </div>
+
+          <!-- Panel derecho: Control Deck + Ficha directa y objetos 3D -->
+          <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 20px">
+            <div class="xp-lcd" style="padding: 22px; display: flex; flex-direction: column; gap: 14px">
+              <div style="display: flex; justify-content: space-between; align-items: center; font-family: 'Press Start 2P', monospace; font-size: 9px; color: #fff27a">
+                <span>PLAYER PROFILE</span>
+                <span style="color: #7dffcf">● ONLINE</span>
+              </div>
+              <h3 style="margin: 0; font-family: 'Londrina Solid', sans-serif; font-weight: 900; font-size: 36px; line-height: 1.05; color: #fff; text-shadow: 0 0 12px rgba(63,240,255,.6)">
+                Rony Vargas · Fullstack
+              </h3>
+              <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 14px; line-height: 1.6; color: #d9f9ff; text-shadow: none">
+                Disponible para proyectos, vacantes full-time o colaboración remota desde Cancún, Quintana Roo.
+              </p>
+              <div style="padding: 12px 14px; border-radius: 6px; background: rgba(11,4,32,.85); border: 1px solid #3ff0ff">
+                <span style="display: block; font-family: 'Press Start 2P', monospace; font-size: 8px; color: #ff8ad8; margin-bottom: 6px">CORREO DIRECTO</span>
+                <a href="mailto:soyronyvargas@gmail.com" style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: clamp(13px, 1.8vw, 16px); color: #fff27a; text-decoration: none; word-break: break-all">soyronyvargas@gmail.com</a>
+              </div>
+            </div>
+
+            <!-- Deck de controles con joystick animado, sobre y disquete 3D -->
+            <div style="position: relative; padding: 20px; border-radius: 14px; background: linear-gradient(180deg, #22104a 0%, #12021f 100%); border: 2px solid #4b3a78; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-around; gap: 16px">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+                <div class="rw-joy" role="img" aria-label="Joystick de arcade" style="transform: scale(.78); transform-origin: center; margin: -22px -16px"></div>
+                <span style="font-family: 'Press Start 2P', monospace; font-size: 8px; color: #3ff0ff">1P CONTROL</span>
+              </div>
+              <a href="mailto:soyronyvargas@gmail.com" class="pc-ico" style="width: auto; padding: 10px 14px; border: 1.5px solid rgba(255,47,179,.45); background: rgba(11,4,32,.6)">
+                <img src="/assets/envelope.webp" alt="" style="width: 72px; height: auto; filter: drop-shadow(0 0 10px rgba(255,47,179,.65))">
+                <span style="font-family: 'Press Start 2P', monospace; font-size: 8px; color: #fff27a">ESCRÍBEME</span>
+              </a>
+              <a href="/Rony_Vargas_CV_2026.pdf" download="Rony_Vargas_CV_2026.pdf" class="pc-ico" style="width: auto; padding: 10px 14px; border: 1.5px solid rgba(63,240,255,.45); background: rgba(11,4,32,.6)">
+                <img src="/assets/floppy-cv.webp" alt="" style="width: 64px; height: auto; filter: drop-shadow(0 0 10px rgba(63,240,255,.65))">
+                <span style="font-family: 'Press Start 2P', monospace; font-size: 8px; color: #7dffcf">BAJAR CV</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
+)}
+
+{variant === 'home2' && (
+  <section id="contacto" style="position: relative; overflow: hidden; background: linear-gradient(180deg, #0b0420 0%, #1a0838 55%, #3b0d54 85%, #12021f 100%); border-top: 2px solid #3ff0ff">
+    <div class="rw-stars-static" aria-hidden="true" style="position: absolute; inset: 0 0 40% 0; opacity: .8"></div>
+
+    <!-- Sol rayado y piso al fondo -->
+    <div aria-hidden="true" style="position: absolute; left: 50%; bottom: 110px; width: 320px; height: 320px; translate: -50% 0; filter: drop-shadow(0 0 50px rgba(255,94,126,.5)); opacity: .45; pointer-events: none">
+      <div class="rw-hsun" style="width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(180deg, #fff27a 0%, #ffb347 35%, #ff5e7e 65%, #ff2fb3 100%)"></div>
+    </div>
+    <div aria-hidden="true" style="position: absolute; z-index: 0; left: 0; right: 0; bottom: 0; height: 170px; overflow: hidden; border-top: 2px solid #3ff0ff; box-shadow: 0 -6px 30px rgba(63,240,255,.45); background: #12021f; perspective: 260px">
+      <div class="rw-about-floor" style="opacity: .7"></div>
+    </div>
+
+    <div style="position: relative; z-index: 2; max-width: 1080px; margin: 0 auto; padding: 96px 24px 110px">
+      <div style="text-align: center; margin-bottom: 44px">
+        <p style="margin: 0 0 18px; font-family: 'Press Start 2P', monospace; font-size: 11px; letter-spacing: 3px; color: #fff27a">05 · CONTACTO · DIAL-UP NODE</p>
+        <h2 style="position: relative; display: inline-block; margin: 0 0 18px; font-weight: 400; line-height: 1">
+          <span class="rw-chrome-wrap" style="font-size: clamp(40px, 6.4vw, 92px)">
+            <span class="rw-chrome-depth" aria-hidden="true">CONECTAR</span>
+            <span class="rw-chrome">CONECTAR</span>
+          </span>
+          <span class="rw-script" aria-hidden="true" style="position: absolute; left: 60%; bottom: -32px; white-space: nowrap; font-size: clamp(32px, 3.8vw, 54px); transform: rotate(-7deg); color: #ff2fb3; -webkit-text-stroke: 1px #ffe6f7; text-shadow: 0 0 6px #ff2fb3, 0 0 18px #ff2fb3">2400 baud</span>
+        </h2>
+        <p style="margin: 36px auto 0; max-width: 620px; font-size: 16px; line-height: 1.6; color: #d9c8f5">
+          Línea directa abierta desde Cancún, Q. Roo. Selecciona un canal de transmisión para enviar un mensaje o descargar mi expediente técnico.
+        </p>
+      </div>
+
+      <!-- Pantalla LCD de Módem con onda senoidal en vivo -->
+      <div class="k2-lcd" style="margin-bottom: 28px; padding: 22px 26px">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px dashed rgba(63,240,255,.35); padding-bottom: 14px; margin-bottom: 16px">
+          <div style="display: flex; align-items: center; gap: 10px; font-size: 10px">
+            <span class="rw-blink" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #7dffcf; box-shadow: 0 0 10px #7dffcf"></span>
+            <span>CARRIER DETECTED · RONY-BBS v5.0</span>
+          </div>
+          <span style="font-size: 9px; color: #fff27a">NODE: CANCÚN, MX [REMOTE READY]</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; align-items: center">
+          <div>
+            <p style="margin: 0 0 8px; font-size: 9px; color: #ff8ad8">DESTINATARIO DIRECTO:</p>
+            <a href="mailto:soyronyvargas@gmail.com" style="display: inline-block; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(16px, 2.4vw, 24px); color: #fff27a; text-decoration: none; text-shadow: 0 0 12px rgba(255,242,122,.7); word-break: break-all">
+              soyronyvargas@gmail.com
+            </a>
+            <p style="margin: 10px 0 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #b8f9ff; text-shadow: none">
+              Tiempo de respuesta habitual: &lt; 24 horas · Español / Inglés técnico
+            </p>
+          </div>
+
+          <!-- Osciloscopio / onda synthwave animada -->
+          <div aria-hidden="true" style="position: relative; height: 68px; border-radius: 8px; overflow: hidden; background: #010e10; border: 1.5px solid #1d4a4e; display: flex; align-items: center">
+            <svg viewBox="0 0 360 60" style="width: 140%; height: 100%; flex: none" class="k2-wave">
+              <path d="M0 30 Q 15 5, 30 30 T 60 30 T 90 30 T 120 30 T 150 30 T 180 30 T 210 30 T 240 30 T 270 30 T 300 30 T 330 30 T 360 30" fill="none" stroke="#3ff0ff" stroke-width="2.5"></path>
+              <path d="M0 30 Q 15 50, 30 30 T 60 30 T 90 30 T 120 30 T 150 30 T 180 30 T 210 30 T 240 30 T 270 30 T 300 30 T 330 30 T 360 30" fill="none" stroke="#ff2fb3" stroke-width="1.5" opacity=".7"></path>
+            </svg>
+            <span style="position: absolute; right: 10px; bottom: 6px; font-size: 7px; color: #7dffcf">SIGNAL 100%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Tarjetas de canal con renders 3D -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; margin-bottom: 28px">
+        <a href="mailto:soyronyvargas@gmail.com" class="rw-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 20px; border-radius: 12px; background: rgba(18,2,31,.9); border: 2px solid #ff2fb3; text-decoration: none; color: #fff">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px">
+            <span style="font-family: 'Press Start 2P', monospace; font-size: 9px; color: #ff2fb3">CH-01 · SMTP</span>
+            <img src="/assets/envelope.webp" alt="" style="width: 56px; height: auto; filter: drop-shadow(0 0 8px rgba(255,47,179,.6))">
+          </div>
+          <div style="margin-top: 14px">
+            <h3 style="margin: 0 0 6px; font-family: 'Londrina Solid', sans-serif; font-size: 28px; color: #fff">Enviar Correo</h3>
+            <p style="margin: 0 0 12px; font-size: 13px; color: #d9c8f5">Propuestas, vacantes o consultas directas.</p>
+            <span style="font-family: 'Press Start 2P', monospace; font-size: 9px; color: #fff27a">▶ TRANSMITIR</span>
+          </div>
+        </a>
+
+        <a href="https://linkedin.com/in/rony-vargas-212bb2182" target="_blank" rel="noopener noreferrer" class="rw-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 20px; border-radius: 12px; background: rgba(18,2,31,.9); border: 2px solid #3ff0ff; text-decoration: none; color: #fff">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px">
+            <span style="font-family: 'Press Start 2P', monospace; font-size: 9px; color: #3ff0ff">CH-02 · NETWORK</span>
+            <span style="font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 24px; color: #3ff0ff; text-shadow: 0 0 10px rgba(63,240,255,.6)">in</span>
+          </div>
+          <div style="margin-top: 14px">
+            <h3 style="margin: 0 0 6px; font-family: 'Londrina Solid', sans-serif; font-size: 28px; color: #fff">LinkedIn</h3>
+            <p style="margin: 0 0 12px; font-size: 13px; color: #d9c8f5">Trayectoria profesional, red y mensajes.</p>
+            <span style="font-family: 'Press Start 2P', monospace; font-size: 9px; color: #7dffcf">▶ ABRIR PERFIL ↗</span>
+          </div>
+        </a>
+
+        <a href="https://github.com/SoyRonyVargas" target="_blank" rel="noopener noreferrer" class="rw-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 20px; border-radius: 12px; background: rgba(18,2,31,.9); border: 2px solid #b26bff; text-decoration: none; color: #fff">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px">
+            <span style="font-family: 'Press Start 2P', monospace; font-size: 9px; color: #b26bff">CH-03 · GIT</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 22px; color: #b26bff; text-shadow: 0 0 10px rgba(178,107,255,.6)">&lt;/&gt;</span>
+          </div>
+          <div style="margin-top: 14px">
+            <h3 style="margin: 0 0 6px; font-family: 'Londrina Solid', sans-serif; font-size: 28px; color: #fff">GitHub</h3>
+            <p style="margin: 0 0 12px; font-size: 13px; color: #d9c8f5">Código fuente, proyectos y actividad.</p>
+            <span style="font-family: 'Press Start 2P', monospace; font-size: 9px; color: #ff8ad8">▶ VER REPOS ↗</span>
+          </div>
+        </a>
+
+        <a href="/Rony_Vargas_CV_2026.pdf" download="Rony_Vargas_CV_2026.pdf" class="rw-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 20px; border-radius: 12px; background: rgba(18,2,31,.9); border: 2px solid #fff27a; text-decoration: none; color: #fff">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px">
+            <span style="font-family: 'Press Start 2P', monospace; font-size: 9px; color: #fff27a">CH-04 · FILE</span>
+            <img src="/assets/floppy-cv.webp" alt="" style="width: 48px; height: auto; filter: drop-shadow(0 0 8px rgba(255,242,122,.6))">
+          </div>
+          <div style="margin-top: 14px">
+            <h3 style="margin: 0 0 6px; font-family: 'Londrina Solid', sans-serif; font-size: 28px; color: #fff">Descargar CV</h3>
+            <p style="margin: 0 0 12px; font-size: 13px; color: #d9c8f5">Versión 2026 en PDF lista para imprimir.</p>
+            <span style="font-family: 'Press Start 2P', monospace; font-size: 9px; color: #fff27a">▶ BAJAR PDF ↓</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Barra de teclado retro con accesos rápidos -->
+      <div class="k6-kb" role="group" aria-label="Atajos de teclado">
+        <a href="mailto:soyronyvargas@gmail.com" class="k6-key k6-key-on" style="text-decoration: none; display: inline-flex; align-items: center">[F1] EMAIL DIRECTO</a>
+        <a href="https://linkedin.com/in/rony-vargas-212bb2182" target="_blank" rel="noopener noreferrer" class="k6-key" style="text-decoration: none; display: inline-flex; align-items: center">[F2] LINKEDIN</a>
+        <a href="https://github.com/SoyRonyVargas" target="_blank" rel="noopener noreferrer" class="k6-key" style="text-decoration: none; display: inline-flex; align-items: center">[F3] GITHUB</a>
+        <a href="/Rony_Vargas_CV_2026.pdf" download="Rony_Vargas_CV_2026.pdf" class="k6-key" style="text-decoration: none; display: inline-flex; align-items: center">[F4] DESCARGAR CV</a>
+      </div>
+    </div>
+  </section>
+)}
+
+{variant === 'home3' && (
+  <section id="contacto" style="position: relative; overflow: hidden; background: radial-gradient(ellipse at 50% 25%, #2a1260 0%, #0b0420 70%); border-top: 2px solid #ff2fb3">
+    <div class="rw-stars-static" aria-hidden="true" style="position: absolute; inset: 0 0 30% 0; opacity: .9"></div>
+    <!-- Haz de luz del proyector -->
+    <div class="k2-beam" aria-hidden="true"></div>
+
+    <!-- Piso de cuadrícula inferior -->
+    <div aria-hidden="true" style="position: absolute; z-index: 0; left: 0; right: 0; bottom: 0; height: 210px; overflow: hidden; border-top: 2px solid #ff2fb3; box-shadow: 0 -6px 30px rgba(255,47,179,.5); background: #12021f; perspective: 260px">
+      <div class="rw-about-floor" style="opacity: .75"></div>
+    </div>
+
+    <div style="position: relative; z-index: 2; max-width: 1040px; margin: 0 auto; padding: 96px 24px 60px">
+      <div style="text-align: center; margin-bottom: 42px">
+        <p style="margin: 0 0 18px; font-family: 'Press Start 2P', monospace; font-size: 11px; letter-spacing: 3px; color: #fff27a">05 · CONTACTO · DRIVE-IN</p>
+        <h2 style="position: relative; display: inline-block; margin: 0 0 18px; font-weight: 400; line-height: 1">
+          <span class="rw-chrome-wrap" style="font-size: clamp(40px, 6.4vw, 92px)">
+            <span class="rw-chrome-depth" aria-hidden="true">ESTRENO</span>
+            <span class="rw-chrome">ESTRENO</span>
+          </span>
+          <span class="rw-script" aria-hidden="true" style="position: absolute; right: -10px; bottom: -32px; font-size: clamp(32px, 3.8vw, 54px); transform: rotate(-6deg); color: #ff2fb3; -webkit-text-stroke: 1px #ffe6f7; text-shadow: 0 0 6px #ff2fb3, 0 0 18px #ff2fb3">midnight feature</span>
+        </h2>
+      </div>
+
+      <!-- Gran pantalla de autocine -->
+      <div class="k2-screen" style="border-radius: 10px; margin-bottom: 32px">
+        <div style="position: relative; overflow: hidden; padding: clamp(24px, 4vw, 44px); background: radial-gradient(ellipse at 50% 35%, #2a1260 0%, #0b0420 82%); border: 2px solid #3ff0ff">
+          <!-- Sol synthwave en la pantalla del cine -->
+          <div aria-hidden="true" style="position: absolute; right: 6%; bottom: -30px; width: 200px; height: 200px; opacity: .28; pointer-events: none">
+            <div class="rw-hsun" style="width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(180deg, #fff27a 0%, #ff5e7e 65%, #ff2fb3 100%)"></div>
+          </div>
+
+          <div style="position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px">
+            <div style="flex: 1 1 420px">
+              <p class="rw-flick" style="margin: 0 0 12px; font-family: 'Press Start 2P', monospace; font-size: 10px; color: #3ff0ff; letter-spacing: 2px">★ NOW SHOWING · FUNCIÓN CONTINUA ★</p>
+              <h3 style="margin: 0 0 12px; font-family: 'Londrina Solid', sans-serif; font-weight: 900; font-size: clamp(32px, 4.5vw, 52px); line-height: 1.05; color: #fff; text-shadow: 0 0 18px rgba(255,47,179,.65)">
+                ¿Hacemos juntos tu próximo gran proyecto?
+              </h3>
+              <p style="margin: 0 0 18px; font-size: 16px; line-height: 1.6; color: #e6d9fb; max-width: 560px">
+                Desarrollador Fullstack disponible desde Cancún para equipos remotos, desarrollo de producto y sistemas a medida.
+              </p>
+              <p style="margin: 0; font-family: 'Press Start 2P', monospace; font-size: clamp(9px, 1.8vw, 12px); color: #fff27a">
+                ✉ <a href="mailto:soyronyvargas@gmail.com" style="color: #fff27a; text-decoration: underline">soyronyvargas@gmail.com</a>
+              </p>
+            </div>
+
+            <div style="flex: 0 1 240px; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px; border-radius: 10px; background: rgba(11,4,32,.75); border: 1.5px dashed rgba(255,242,122,.5); text-align: center">
+              <img src="/assets/envelope.webp" alt="" style="width: 78px; height: auto; filter: drop-shadow(0 0 12px rgba(255,47,179,.7))">
+              <span style="font-family: 'Press Start 2P', monospace; font-size: 9px; color: #7dffcf">TAQUILLA ABIERTA</span>
+              <span style="font-size: 12px; color: #d9c8f5">Elige tu boleto abajo para entrar en contacto</span>
+            </div>
+          </div>
+
+          <div aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 2px, transparent 2px 4px)"></div>
+        </div>
+      </div>
+
+      <!-- Taquilla: 4 Boletos de cine retro troquelados (.k2-ticket) -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 36px">
+        <a href="mailto:soyronyvargas@gmail.com" class="k2-ticket k2-ticket-on" style="text-decoration: none">
+          <b>ADMIT ONE · FILA 01</b>
+          <span style="font-size: 24px; margin: 4px 0">▶ ENVIAR CORREO</span>
+          <b>soyronyvargas@gmail.com</b>
+        </a>
+
+        <a href="https://linkedin.com/in/rony-vargas-212bb2182" target="_blank" rel="noopener noreferrer" class="k2-ticket" style="text-decoration: none">
+          <b>VIP PASS · FILA 02</b>
+          <span style="font-size: 24px; margin: 4px 0">▶ LINKEDIN ↗</span>
+          <b>CONECTAR EN RED</b>
+        </a>
+
+        <a href="https://github.com/SoyRonyVargas" target="_blank" rel="noopener noreferrer" class="k2-ticket" style="text-decoration: none; background: #3ff0ff; color: #0b0420">
+          <b>BACKSTAGE · FILA 03</b>
+          <span style="font-size: 24px; margin: 4px 0">▶ GITHUB ↗</span>
+          <b>VER REPOSITORIOS</b>
+        </a>
+
+        <a href="/Rony_Vargas_CV_2026.pdf" download="Rony_Vargas_CV_2026.pdf" class="k2-ticket" style="text-decoration: none; background: #7dffcf; color: #0b0420">
+          <b>PROGRAMA OFICIAL · PDF</b>
+          <span style="font-size: 24px; margin: 4px 0">▶ DESCARGAR CV ↓</span>
+          <b>EDICIÓN 2026</b>
+        </a>
+      </div>
+
+      <!-- DeLorean viendo la pantalla del autocine -->
+      <div style="display: flex; justify-content: center; margin-top: 10px">
+        <img src="/assets/delorean-rear-straight.webp" alt="DeLorean frente a la pantalla de autocine" style="width: 290px; max-width: 80vw; height: auto; filter: drop-shadow(0 12px 24px rgba(0,0,0,.8)) drop-shadow(0 0 22px rgba(255,47,179,.45))">
+      </div>
+    </div>
+  </section>
+)}
+
+{variant === 'home4' && (
+  <section id="contacto" style="position: relative; overflow: hidden; background: linear-gradient(180deg, #0b0420 0%, #1d0a45 45%, #6a1b7a 72%, #12021f 72.5%); border-top: 2px solid #3ff0ff">
+    <div class="rw-stars-static" aria-hidden="true" style="position: absolute; inset: 0 0 35% 0; opacity: .85"></div>
+
+    <!-- Sol rayado en el horizonte de la autopista -->
+    <div aria-hidden="true" style="position: absolute; left: 50%; top: 180px; width: 340px; height: 340px; translate: -50% 0; filter: drop-shadow(0 0 50px rgba(255,94,126,.6)); opacity: .65; pointer-events: none">
+      <div class="rw-hsun" style="width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(180deg, #fff27a 0%, #ffb347 35%, #ff5e7e 65%, #ff2fb3 100%)"></div>
+    </div>
+
+    <!-- Carretera synthwave animada en la base -->
+    <div class="k2-road" aria-hidden="true" style="height: 360px">
+      <div></div>
+      <span class="k2-lane"></span>
+    </div>
+
+    <div style="position: relative; z-index: 2; max-width: 1120px; margin: 0 auto; padding: 96px 24px 110px">
+      <div style="text-align: center; margin-bottom: 40px">
+        <p style="margin: 0 0 18px; font-family: 'Press Start 2P', monospace; font-size: 11px; letter-spacing: 3px; color: #fff27a">05 · CONTACTO · HIGHWAY EXIT 05</p>
+        <h2 style="position: relative; display: inline-block; margin: 0 0 18px; font-weight: 400; line-height: 1">
+          <span class="rw-chrome-wrap" style="font-size: clamp(40px, 6.4vw, 92px)">
+            <span class="rw-chrome-depth" aria-hidden="true">PRÓXIMA SALIDA</span>
+            <span class="rw-chrome">PRÓXIMA SALIDA</span>
+          </span>
+          <span class="rw-script" aria-hidden="true" style="position: absolute; right: 0; bottom: -34px; font-size: clamp(32px, 3.8vw, 54px); transform: rotate(-6deg); color: #3ff0ff; -webkit-text-stroke: 1px #e6fdff; text-shadow: 0 0 6px #3ff0ff, 0 0 18px #3ff0ff">next exit ↗</span>
+        </h2>
+      </div>
+
+      <!-- Pórtico / Espectacular principal de autopista -->
+      <div style="max-width: 880px; margin: 0 auto 28px; padding: 26px 28px; border-radius: 12px; background: rgba(11,4,32,.92); border: 3px solid #7dffcf; box-shadow: 0 0 0 6px #0b0420, 0 25px 50px rgba(0,0,0,.7), 0 0 35px rgba(125,255,207,.3)">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 14px; margin-bottom: 20px; border-bottom: 2px dashed rgba(125,255,207,.4)">
+          <span style="padding: 6px 10px; border-radius: 4px; background: #7dffcf; color: #0b0420; font-family: 'Press Start 2P', monospace; font-size: 9px">INTERSTATE RV-85</span>
+          <span style="font-family: 'Press Start 2P', monospace; font-size: 9px; color: #fff27a">SALIDA 05 · CONTRATACIÓN Y PROYECTOS ↗</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; align-items: center; margin-bottom: 24px">
+          <div>
+            <h3 style="margin: 0 0 8px; font-family: 'Londrina Solid', sans-serif; font-weight: 900; font-size: clamp(30px, 4vw, 44px); line-height: 1.05; color: #fff">
+              ¿Listo para arrancar el proyecto?
+            </h3>
+            <p style="margin: 0 0 12px; font-size: 15px; line-height: 1.6; color: #e6d9fb">
+              Toma el desvío directo a mi bandeja de entrada o revisa mis perfiles y currículum.
+            </p>
+            <a href="mailto:soyronyvargas@gmail.com" style="font-family: 'Press Start 2P', monospace; font-size: clamp(9px, 1.6vw, 11px); color: #fff27a; text-decoration: none">
+              ▶ soyronyvargas@gmail.com
+            </a>
+          </div>
+
+          <div style="display: flex; justify-content: center; gap: 22px; align-items: center">
+            <img src="/assets/envelope.webp" alt="" class="rw-float" style="width: 84px; height: auto; filter: drop-shadow(0 0 14px rgba(255,47,179,.65))">
+            <img src="/assets/floppy-cv.webp" alt="" class="rw-float" style="width: 72px; height: auto; animation-delay: -1.5s; filter: drop-shadow(0 0 14px rgba(63,240,255,.65))">
+          </div>
+        </div>
+
+        <!-- 4 Señales de carril / desvíos -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 12px">
+          <a href="mailto:soyronyvargas@gmail.com" class="rw-btn" style="display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 8px; border: 2px solid #fff27a; background: #fff27a; color: #0b0420; text-decoration: none; font-family: 'Press Start 2P', monospace">
+            <span style="font-size: 8px; opacity: .75">CARRIL 01 · DIRECTO</span>
+            <span style="font-size: 11px">✉ EMAIL ↗</span>
+          </a>
+
+          <a href="https://linkedin.com/in/rony-vargas-212bb2182" target="_blank" rel="noopener noreferrer" class="rw-card" style="display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 8px; border: 2px solid #3ff0ff; background: rgba(22,7,51,.9); color: #3ff0ff; text-decoration: none; font-family: 'Press Start 2P', monospace">
+            <span style="font-size: 8px; color: #d9c8f5">CARRIL 02 · RED</span>
+            <span style="font-size: 11px">▶ LINKEDIN ↗</span>
+          </a>
+
+          <a href="https://github.com/SoyRonyVargas" target="_blank" rel="noopener noreferrer" class="rw-card" style="display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 8px; border: 2px solid #ff2fb3; background: rgba(22,7,51,.9); color: #ff8ad8; text-decoration: none; font-family: 'Press Start 2P', monospace">
+            <span style="font-size: 8px; color: #d9c8f5">CARRIL 03 · CÓDIGO</span>
+            <span style="font-size: 11px">▶ GITHUB ↗</span>
+          </a>
+
+          <a href="/Rony_Vargas_CV_2026.pdf" download="Rony_Vargas_CV_2026.pdf" class="rw-card" style="display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 8px; border: 2px solid #7dffcf; background: rgba(22,7,51,.9); color: #7dffcf; text-decoration: none; font-family: 'Press Start 2P', monospace">
+            <span style="font-size: 8px; color: #d9c8f5">CARRIL 04 · DOC</span>
+            <span style="font-size: 11px">▶ CV 2026 ↓</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Dos espectaculares secundarios abajo -->
+      <div style="max-width: 880px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px">
+        <div style="padding: 16px 20px; border-radius: 8px; background: rgba(11,4,32,.9); border: 2px solid #ff2fb3; box-shadow: 0 0 20px rgba(255,47,179,.3)">
+          <p style="margin: 0 0 6px; font-family: 'Press Start 2P', monospace; font-size: 9px; color: #ff2fb3">UBICACIÓN Y MODALIDAD</p>
+          <p style="margin: 0; font-size: 14px; color: #f4eefc">Cancún, Quintana Roo, México · Disponible para trabajo 100% remoto.</p>
+        </div>
+        <div style="padding: 16px 20px; border-radius: 8px; background: rgba(11,4,32,.9); border: 2px solid #3ff0ff; box-shadow: 0 0 20px rgba(63,240,255,.3)">
+          <p style="margin: 0 0 6px; font-family: 'Press Start 2P', monospace; font-size: 9px; color: #3ff0ff">ESPECIALIDAD</p>
+          <p style="margin: 0; font-size: 14px; color: #f4eefc">Node.js · React · Next.js · Vue · Nest.js · .NET · SQL Server · MySQL</p>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+{variant === 'home5' && (
+  
+  <section id="contacto" style="position: relative; overflow: hidden; background: radial-gradient(ellipse at 30% 30%, #2a1260 0%, #0b0420 68%); border-top: 2px solid #b26bff">
+    <div class="rw-stars-static" aria-hidden="true" style="position: absolute; inset: 0; opacity: .75"></div>
+
+    <!-- Piso de cuadrícula en la base -->
+    <div aria-hidden="true" style="position: absolute; z-index: 0; left: 0; right: 0; bottom: 0; height: 170px; overflow: hidden; border-top: 2px solid #ff2fb3; box-shadow: 0 -6px 30px rgba(255,47,179,.5); background: #12021f; perspective: 260px">
+      <div class="rw-about-floor" style="opacity: .7"></div>
+    </div>
+
+    <div style="position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; padding: 96px 24px 110px">
+      <div style="text-align: center; margin-bottom: 48px">
+        <p style="margin: 0 0 18px; font-family: 'Press Start 2P', monospace; font-size: 11px; letter-spacing: 3px; color: #fff27a">05 · CONTACTO · CO-OP MODE</p>
+        <h2 style="position: relative; display: inline-block; margin: 0 0 18px; font-weight: 400; line-height: 1">
+          <span class="rw-chrome-wrap" style="font-size: clamp(40px, 6.4vw, 92px)">
+            <span class="rw-chrome-depth" aria-hidden="true">PLAYER 2</span>
+            <span class="rw-chrome">PLAYER 2</span>
+          </span>
+          <span class="rw-script" aria-hidden="true" style="position: absolute; left: 58%; bottom: -32px; white-space: nowrap; font-size: clamp(32px, 3.8vw, 54px); transform: rotate(-7deg); color: #7dffcf; -webkit-text-stroke: 1px #e8fff6; text-shadow: 0 0 6px #7dffcf, 0 0 18px #7dffcf">press start</span>
+        </h2>
+        <p style="margin: 36px auto 0; max-width: 620px; font-size: 16px; line-height: 1.6; color: #d9c8f5">
+          El Jugador 1 ya está en la sala. Elige un slot de misión para unirte en modo cooperativo.
+        </p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; align-items: stretch">
+        <!-- Tarjeta de Jugador 1 con el Cartucho RV-85 en 3D -->
+        <div style="padding: 28px 24px; border-radius: 16px; background: rgba(18,2,31,.9); border: 3px solid #ff2fb3; box-shadow: 0 0 35px rgba(255,47,179,.28), inset 0 0 30px rgba(255,47,179,.1); display: flex; flex-direction: column; justify-content: space-between; gap: 20px">
+          <div style="display: flex; justify-content: space-between; align-items: center; font-family: 'Press Start 2P', monospace; font-size: 10px">
+            <span style="color: #ff2fb3">1P · RONY VARGAS</span>
+            <span class="rw-blink" style="color: #7dffcf">● READY</span>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: center; gap: 22px; padding: 16px 0">
+            <img src="/assets/cartridge-rv85.webp" alt="Cartucho RV-85 Fullstack" class="rw-float" style="width: 135px; height: auto; filter: drop-shadow(0 0 20px rgba(255,47,179,.55))">
+            <div style="display: flex; flex-direction: column; gap: 14px">
+              <img src="/assets/envelope.webp" alt="" style="width: 68px; height: auto; filter: drop-shadow(0 0 10px rgba(63,240,255,.55))">
+              <img src="/assets/floppy-cv.webp" alt="" style="width: 62px; height: auto; filter: drop-shadow(0 0 10px rgba(255,242,122,.55))">
+            </div>
+          </div>
+
+          <div style="padding: 16px; border-radius: 10px; background: #0b0420; border: 1.5px solid #3a1d6e; font-family: 'Press Start 2P', monospace; font-size: 9px; line-height: 2; color: #e6d9fb">
+            <div>CLASE: <span style="color: #3ff0ff">FULLSTACK DEV (5+ EXP)</span></div>
+            <div>BASE: <span style="color: #fff27a">CANCÚN, MX · REMOTO</span></div>
+            <div>EMAIL: <a href="mailto:soyronyvargas@gmail.com" style="color: #7dffcf; text-decoration: none">soyronyvargas@gmail.com</a></div>
+          </div>
+        </div>
+
+        <!-- 4 Slots de Misión -->
+        <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 14px">
+          <a href="mailto:soyronyvargas@gmail.com" class="rw-card" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-radius: 12px; background: rgba(18,2,31,.92); border: 2px solid #fff27a; text-decoration: none; color: #fff">
+            <div>
+              <span style="display: block; font-family: 'Press Start 2P', monospace; font-size: 8px; color: #fff27a; margin-bottom: 6px">SLOT 01 · MISIÓN PRINCIPAL</span>
+              <strong style="font-family: 'Londrina Solid', sans-serif; font-size: 28px; letter-spacing: .5px; color: #fff">Enviar Correo Directo</strong>
+              <span style="display: block; font-size: 13px; color: #d9c8f5; margin-top: 2px">soyronyvargas@gmail.com</span>
+            </div>
+            <span style="padding: 10px 14px; border-radius: 6px; background: #fff27a; color: #0b0420; font-family: 'Press Start 2P', monospace; font-size: 9px; white-space: nowrap">▶ START</span>
+          </a>
+
+          <a href="https://linkedin.com/in/rony-vargas-212bb2182" target="_blank" rel="noopener noreferrer" class="rw-card" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-radius: 12px; background: rgba(18,2,31,.92); border: 2px solid #3ff0ff; text-decoration: none; color: #fff">
+            <div>
+              <span style="display: block; font-family: 'Press Start 2P', monospace; font-size: 8px; color: #3ff0ff; margin-bottom: 6px">SLOT 02 · ALIANZA</span>
+              <strong style="font-family: 'Londrina Solid', sans-serif; font-size: 28px; letter-spacing: .5px; color: #fff">Conectar en LinkedIn</strong>
+              <span style="display: block; font-size: 13px; color: #d9c8f5; margin-top: 2px">linkedin.com/in/rony-vargas-212bb2182</span>
+            </div>
+            <span style="padding: 10px 14px; border-radius: 6px; border: 1.5px solid #3ff0ff; color: #3ff0ff; font-family: 'Press Start 2P', monospace; font-size: 9px; white-space: nowrap">▶ ABRIR ↗</span>
+          </a>
+
+          <a href="https://github.com/SoyRonyVargas" target="_blank" rel="noopener noreferrer" class="rw-card" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-radius: 12px; background: rgba(18,2,31,.92); border: 2px solid #b26bff; text-decoration: none; color: #fff">
+            <div>
+              <span style="display: block; font-family: 'Press Start 2P', monospace; font-size: 8px; color: #b26bff; margin-bottom: 6px">SLOT 03 · CÓDIGO FUENTE</span>
+              <strong style="font-family: 'Londrina Solid', sans-serif; font-size: 28px; letter-spacing: .5px; color: #fff">Explorar GitHub</strong>
+              <span style="display: block; font-size: 13px; color: #d9c8f5; margin-top: 2px">github.com/SoyRonyVargas</span>
+            </div>
+            <span style="padding: 10px 14px; border-radius: 6px; border: 1.5px solid #b26bff; color: #ff8ad8; font-family: 'Press Start 2P', monospace; font-size: 9px; white-space: nowrap">▶ REPOS ↗</span>
+          </a>
+
+          <a href="/Rony_Vargas_CV_2026.pdf" download="Rony_Vargas_CV_2026.pdf" class="rw-card" style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-radius: 12px; background: rgba(18,2,31,.92); border: 2px solid #7dffcf; text-decoration: none; color: #fff">
+            <div>
+              <span style="display: block; font-family: 'Press Start 2P', monospace; font-size: 8px; color: #7dffcf; margin-bottom: 6px">SLOT 04 · EXPEDIENTE</span>
+              <strong style="font-family: 'Londrina Solid', sans-serif; font-size: 28px; letter-spacing: .5px; color: #fff">Descargar CV 2026 (PDF)</strong>
+              <span style="display: block; font-size: 13px; color: #d9c8f5; margin-top: 2px">Rony_Vargas_CV_2026.pdf</span>
+            </div>
+            <span style="padding: 10px 14px; border-radius: 6px; border: 1.5px solid #7dffcf; color: #7dffcf; font-family: 'Press Start 2P', monospace; font-size: 9px; white-space: nowrap">▶ PDF ↓</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- formulario de contacto (variante default) -->
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-ct-form]');
+  if (form) {
+    const $ = <T extends Element>(s: string) => form.closest('#contacto')!.querySelector<T>(s)!;
+    const status = $<HTMLElement>('[data-ct-status]');
+    const credit = $<HTMLElement>('[data-ct-credit]');
+    const score = $<HTMLElement>('[data-ct-score]');
+    const count = $<HTMLElement>('[data-ct-count]');
+    const env = $<HTMLImageElement>('[data-ct-env]');
+    const submit = $<HTMLButtonElement>('[data-ct-submit]');
+    const msg = form.querySelector<HTMLTextAreaElement>('textarea[name="mensaje"]')!;
+    const idle = 'PRESS START · LLENA LOS CAMPOS';
+
+    const setStatus = (txt: string, tone = '') => {
+      status.textContent = txt;
+      status.dataset.tone = tone;
+    };
+    const refresh = () => {
+      const ok = form.checkValidity();
+      credit.textContent = ok ? '01' : '00';
+      form.classList.toggle('is-ready', ok);
+      const pts = (form.querySelector<HTMLInputElement>('[name="nombre"]')!.value.length * 50) + msg.value.length * 10;
+      score.textContent = String(Math.min(pts, 999999)).padStart(6, '0');
+      count.textContent = String(msg.value.length);
+      if (status.dataset.tone !== 'ok') setStatus(ok ? '★ CREDIT 01 · PRESS START ★' : idle, ok ? 'ready' : '');
+    };
+    form.addEventListener('input', () => { if (status.dataset.tone === 'ok') status.dataset.tone = ''; refresh(); });
+
+    // sin JS el formulario igual se envía a Netlify; aquí mostramos el estado sin recargar
+    if (new URLSearchParams(location.search).has('enviado')) setStatus('★ MENSAJE ENVIADO · GAME SAVED ★', 'ok');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) {
+        setStatus('✕ FALTAN DATOS · REVISA LOS CAMPOS', 'err');
+        form.classList.add('is-shake');
+        setTimeout(() => form.classList.remove('is-shake'), 450);
+        (form.querySelector(':invalid') as HTMLElement | null)?.focus();
+        return;
+      }
+      submit.disabled = true;
+      setStatus('ENVIANDO ▮▮▮▯▯ ...', 'busy');
+      try {
+        const body = new URLSearchParams(new FormData(form) as unknown as Record<string, string>).toString();
+        const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
+        if (!res.ok) throw new Error(String(res.status));
+        env.classList.remove('is-fly');
+        void env.offsetWidth;
+        env.classList.add('is-fly');
+        form.reset();
+        refresh();
+        setStatus('★ MENSAJE ENVIADO · GAME SAVED ★', 'ok');
+      } catch {
+        setStatus('✕ ERROR DE CONEXIÓN · ESCRÍBEME A soyronyvargas@gmail.com', 'err');
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  }
+</script>

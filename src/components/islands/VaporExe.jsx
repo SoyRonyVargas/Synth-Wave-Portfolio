@@ -663,16 +663,16 @@ export default function VaporExe() {
                   {"!"}
                 </span>{" "}
                 <p style={{ margin: "0", fontSize: "14px", lineHeight: "1.5", color: "#fff" }}>
-                  {"¿Hacemos juntos el proyecto 05? Escríbeme y lo arrancamos."}
+                  {"¿Necesitas un CRM, integrar pagos o conectar WhatsApp y Meta Ads a tu sistema? Lo construyo de punta a punta: base de datos, API y frontend."}
                 </p>{" "}
               </div>{" "}
               <div style={{ padding: "0 16px 16px" }}>
                 <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-                  <a className="pc-btn" href="#contacto">
-                    {"SÍ"}
+                  <a className="pc-btn" href="/Rony_Vargas_CV_2026.pdf" download="Rony_Vargas_CV_2026.pdf">
+                    {"VER CV"}
                   </a>
                   <a className="pc-btn" href="#contacto">
-                    {"¡CLARO!"}
+                    {"COTIZAR"}
                   </a>
                 </div>
               </div>{" "}

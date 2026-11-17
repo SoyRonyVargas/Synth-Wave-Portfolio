@@ -6,14 +6,13 @@
       "Node.js",
       "Express",
       "Nest.js",
+      "Python (Django)",
       ".NET",
       "APIs REST",
       "GraphQL",
-      "WebSockets",
-      "Python (Flask)",
-      "PHP"
+      "WebSockets"
     ],
-    "used": "Upnify · UPQROO · Hiplot"
+    "used": "Upnify · IUAF · UPQROO · Hiplot"
   },
   {
     "name": "FRONTEND",
@@ -37,9 +36,8 @@
     "name": "BASES DE DATOS",
     "col": "#fff27a",
     "items": [
-      "SQL Server",
+      "SQL Server (stored procedures)",
       "MySQL",
-      "PostgreSQL",
       "MongoDB"
     ],
     "used": "Upnify · Hiplot · UPQROO"
@@ -48,22 +46,26 @@
     "name": "INTEGRACIONES",
     "col": "#b26bff",
     "items": [
+      "Stripe",
       "Meta Graph API",
+      "Meta Lead Ads",
       "WhatsApp Business API",
       "TikTok Lead Ads",
       "OpenAI API",
       "OAuth 2.0",
       "Webhooks"
     ],
-    "used": "Upnify"
+    "used": "Upnify · IUAF"
   },
   {
-    "name": "CALIDAD Y DEVOPS",
+    "name": "CLOUD Y DEVOPS",
     "col": "#7dffcf",
     "items": [
+      "AWS (EC2, S3, SES)",
+      "Docker",
       "Git",
-      "Jest",
       "GitHub Actions",
+      "Jest",
       "SonarCloud",
       "Postman"
     ],
@@ -76,8 +78,8 @@
       "SEO",
       "Google Analytics",
       "WordPress",
-      "IA en el desarrollo"
+      "Asistentes IA (Claude, Codex, Gemini)"
     ],
-    "used": "UPQROO · Freelance"
+    "used": "IUAF · UPQROO · Freelance"
   }
 ]

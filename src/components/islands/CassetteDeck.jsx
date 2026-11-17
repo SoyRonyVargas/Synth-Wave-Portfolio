@@ -1,22 +1,39 @@
-import { useState, Fragment } from "react";
+import { useState, useEffect } from "react";
 import JOBS from "../../data/jobs.json";
+import { getMusic, SONGS, DEFAULT_SONG } from "../../lib/music.js";
+
+const PX = "'Press Start 2P', monospace";
+const TOTAL = String(JOBS.filter((j) => j.track !== "BONUS").length).padStart(2, "0");
 
 export default function CassetteDeck() {
   const [di, setDi] = useState(0);
-  const dc = JOBS[di],
-    n = JOBS.length;
-  const v = {
-    dcur: dc,
-    dtrack: "0" + (di + 1),
-    dlist: dc.bullets.map((t, k) => ({ n: "A" + (k + 1), t })),
-    dprev: () => setDi((di + n - 1) % n),
-    dnext: () => setDi((di + 1) % n),
+  const [music, setMusic] = useState({ song: DEFAULT_SONG, on: true, playing: false, waiting: false });
+  const n = JOBS.length;
+  const dc = JOBS[di];
+
+  useEffect(() => {
+    const m = getMusic();
+    return m ? m.subscribe(setMusic) : undefined;
+  }, []);
+
+  // elegir casete = cambiar la canción del sitio
+  const pick = (k) => {
+    setDi(k);
+    getMusic()?.setSong(JOBS[k].song);
   };
-  for (let k = 0; k < n; k++) {
-    v["dsel" + k] = di === k;
-    v["didle" + k] = di !== k;
-    v["dpick" + k] = () => setDi(k);
-  }
+  const prev = () => pick((di + n - 1) % n);
+  const next = () => pick((di + 1) % n);
+  const playPause = () => {
+    const m = getMusic();
+    if (!m) return;
+    m.setSong(dc.song);
+    m.toggle();
+  };
+
+  const audible = music.on && music.playing;
+  const song = SONGS[dc.song];
+  const trackTxt = (j) => (j.track === "BONUS" ? "BONUS TRACK" : "TRACK " + j.track + " / " + TOTAL);
+
   return (
     <>
       {/* EXPERIENCIA: deck de casetes */}{" "}
@@ -43,20 +60,10 @@ export default function CassetteDeck() {
             padding: "96px 24px 600px",
           }}
         >
-          {" "}
-          <p
-            style={{
-              margin: "0 0 18px",
-              fontFamily: "'Press Start 2P', monospace",
-              fontSize: "11px",
-              letterSpacing: "3px",
-              color: "#fff27a",
-            }}
-          >
+          <p style={{ margin: "0 0 18px", fontFamily: PX, fontSize: "11px", letterSpacing: "3px", color: "#fff27a" }}>
             {"02 · EXPERIENCIA"}
-          </p>{" "}
+          </p>
           <h2 style={{ position: "relative", margin: "0 0 18px", fontWeight: "400", lineHeight: "1" }}>
-            {" "}
             <span className="rw-chrome-wrap" style={{ fontSize: "clamp(40px, 6.4vw, 92px)" }}>
               <span className="rw-chrome-depth" aria-hidden="true">
                 {"EXPERIENCIA"}
@@ -78,153 +85,111 @@ export default function CassetteDeck() {
               }}
             >
               {"side A & B"}
-            </span>{" "}
-          </h2>{" "}
-          <p
-            style={{ margin: "40px 0 56px", maxWidth: "600px", fontSize: "16px", lineHeight: "1.6", color: "#d9c8f5" }}
-          >
+            </span>
+          </h2>
+          <p style={{ margin: "40px 0 56px", maxWidth: "620px", fontSize: "16px", lineHeight: "1.6", color: "#d9c8f5" }}>
             {
-              "Elige un casete del estante y mételo al deck: el display te dice dónde y cuánto tiempo, y abajo sale la lista de canciones de ese trabajo."
+              "Elige un casete del estante y mételo al deck: el display te dice dónde y cuánto tiempo, abajo sale la lista de canciones de ese trabajo y cada casete trae su propio track."
             }
-          </p>{" "}
-          {/* deck */}{" "}
+          </p>
+          {/* deck */}
           <div className="xp-deck">
-            {" "}
-            <div
-              style={{ position: "relative", display: "flex", flexWrap: "wrap", gap: "26px", alignItems: "stretch" }}
-            >
-              {" "}
+            <div style={{ position: "relative", display: "flex", flexWrap: "wrap", gap: "26px", alignItems: "stretch" }}>
+              {/* ventana del casete: proporción fija, así no brinca al cambiar */}
               <div className="xp-window" style={{ flex: "1 1 420px", minWidth: "0" }}>
-                {" "}
-                {v.dsel0 && (
-                  <>
-                    <img
-                      className="xp-in"
-                      src="/assets/cassette-upnify.webp"
-                      alt="Casete 2024 · UPNIFY"
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        height: "auto",
-                        filter: "drop-shadow(0 0 26px rgba(255,47,179,.55))",
-                      }}
-                    />
-                  </>
-                )}{" "}
-                {v.dsel1 && (
-                  <>
-                    <img
-                      className="xp-in"
-                      src="/assets/cassette-upqroo.webp"
-                      alt="Casete 2023 · UPQROO"
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        height: "auto",
-                        filter: "drop-shadow(0 0 26px rgba(63,240,255,.55))",
-                      }}
-                    />
-                  </>
-                )}{" "}
-                {v.dsel2 && (
-                  <>
-                    <img
-                      className="xp-in"
-                      src="/assets/cassette-hiplot.webp"
-                      alt="Casete 2021 · HIPLOT"
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        height: "auto",
-                        filter: "drop-shadow(0 0 26px rgba(255,242,122,.55))",
-                      }}
-                    />
-                  </>
-                )}{" "}
-                {v.dsel3 && (
-                  <>
-                    <img
-                      className="xp-in"
-                      src="/assets/cassette-freelance.webp"
-                      alt="Casete 2020 · FREELANCE"
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        height: "auto",
-                        filter: "drop-shadow(0 0 26px rgba(178,107,255,.55))",
-                      }}
-                    />
-                  </>
-                )}{" "}
+                <div className="xp-tapeslot">
+                  <img
+                    key={di}
+                    className={"xp-in" + (audible ? " xp-spin" : "")}
+                    src={dc.img}
+                    alt={"Casete " + dc.label}
+                    width="520"
+                    height="363"
+                    style={{ filter: "drop-shadow(0 0 26px " + dc.glow + ")" }}
+                  />
+                </div>
                 <p
                   style={{
                     position: "absolute",
                     left: "18px",
                     top: "12px",
                     margin: "0",
-                    fontFamily: "'Press Start 2P', monospace",
+                    fontFamily: PX,
                     fontSize: "8px",
                     color: "#8f80b8",
                   }}
                 >
                   {"CASSETTE DECK · RV-2026"}
-                </p>{" "}
-              </div>{" "}
+                </p>
+              </div>
               <div style={{ flex: "1 1 380px", minWidth: "0", display: "flex", flexDirection: "column", gap: "16px" }}>
-                {" "}
-                <div className="xp-lcd">
-                  {" "}
-                  <p
-                    style={{
-                      margin: "0",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      fontSize: "12px",
-                      letterSpacing: "2px",
-                    }}
-                  >
-                    <span>
-                      {"TRACK "}
-                      {v.dtrack}
-                      {" / 04"}
-                    </span>
-                    <span style={{ color: "#fff27a", textShadow: "0 0 8px rgba(255,242,122,.8)" }}>{"▶ PLAY"}</span>
-                  </p>{" "}
-                  <p style={{ margin: "10px 0 4px", fontSize: "34px", lineHeight: "1.05", letterSpacing: "2px" }}>
-                    {v.dcur.short}
-                  </p>{" "}
-                  <p
-                    style={{
-                      margin: "0",
-                      fontFamily: "'Press Start 2P', monospace",
-                      fontSize: "9px",
-                      lineHeight: "1.8",
-                      color: "#b8f9ff",
-                    }}
-                  >
-                    {v.dcur.dates}
-                    {" · "}
-                    {v.dcur.place}
-                  </p>{" "}
-                  <p
-                    style={{
-                      margin: "6px 0 14px",
-                      fontFamily: "'Press Start 2P', monospace",
-                      fontSize: "9px",
-                      color: "#ff8ad8",
-                      textShadow: "0 0 8px rgba(255,47,179,.7)",
-                    }}
-                  >
-                    {"DURACIÓN "}
-                    {v.dcur.dur}
-                  </p>{" "}
+                <div className="xp-lcd" style={{ flex: "1 1 auto" }}>
+                  {/* todos los casetes apilados en la misma celda: el alto no cambia */}
+                  <div className="xp-stack">
+                    {JOBS.map((j, k) => (
+                      <div key={k} className={k === di ? "" : "xp-ghost"} aria-hidden={k !== di}>
+                        <p
+                          style={{
+                            margin: "0",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            gap: "10px",
+                            fontSize: "12px",
+                            letterSpacing: "2px",
+                          }}
+                        >
+                          <span>{trackTxt(j)}</span>
+                          <span style={{ color: "#fff27a", textShadow: "0 0 8px rgba(255,242,122,.8)", whiteSpace: "nowrap" }}>
+                            {audible ? "▶ PLAY" : "❚❚ PAUSE"}
+                          </span>
+                        </p>
+                        <p
+                          style={{
+                            margin: "10px 0 4px",
+                            fontSize: "34px",
+                            lineHeight: "1.05",
+                            letterSpacing: "2px",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {j.short}
+                        </p>
+                        <p style={{ margin: "0", fontFamily: PX, fontSize: "9px", lineHeight: "1.8", color: "#b8f9ff" }}>
+                          {j.dates}
+                          {" · "}
+                          {j.place}
+                        </p>
+                        <p
+                          style={{
+                            margin: "6px 0 10px",
+                            fontFamily: PX,
+                            fontSize: "9px",
+                            color: "#ff8ad8",
+                            textShadow: "0 0 8px rgba(255,47,179,.7)",
+                          }}
+                        >
+                          {"DURACIÓN "}
+                          {j.dur}
+                        </p>
+                        <p className="xp-song">
+                          <span className={audible && k === di ? "xp-marquee" : ""}>
+                            {"♪ " + SONGS[j.song].artist + " — " + SONGS[j.song].title}
+                          </span>
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                   <div
+                    className={audible ? "" : "xp-vu-off"}
                     style={{
                       display: "grid",
                       gridTemplateColumns: "18px 1fr",
                       gap: "6px 8px",
                       alignItems: "center",
-                      fontFamily: "'Press Start 2P', monospace",
+                      marginTop: "12px",
+                      fontFamily: PX,
                       fontSize: "8px",
                     }}
                   >
@@ -232,197 +197,102 @@ export default function CassetteDeck() {
                     <div className="xp-vu"></div>
                     <span>{"R"}</span>
                     <div className="xp-vu" style={{ animationDelay: "-.3s" }}></div>
-                  </div>{" "}
-                </div>{" "}
+                  </div>
+                </div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-                  {" "}
-                  <button type="button" className="xp-btn" onClick={v.dprev} aria-label="Casete anterior">
+                  <button type="button" className="xp-btn" onClick={prev} aria-label="Casete anterior">
                     {"◀◀"}
-                  </button>{" "}
-                  <button type="button" className="xp-btn xp-btn-play" aria-label="Reproduciendo">
-                    {"▶"}
-                  </button>{" "}
-                  <button type="button" className="xp-btn" onClick={v.dnext} aria-label="Siguiente casete">
+                  </button>
+                  <button
+                    type="button"
+                    className="xp-btn xp-btn-play"
+                    onClick={playPause}
+                    aria-pressed={audible}
+                    aria-label={audible ? "Pausar música" : "Reproducir música de este casete"}
+                  >
+                    {audible ? "❚❚" : "▶"}
+                  </button>
+                  <button type="button" className="xp-btn" onClick={next} aria-label="Siguiente casete">
                     {"▶▶"}
-                  </button>{" "}
+                  </button>
                   <span
                     style={{
                       marginLeft: "auto",
                       alignSelf: "center",
-                      fontFamily: "'Press Start 2P', monospace",
+                      fontFamily: PX,
                       fontSize: "8px",
                       color: "#8f80b8",
                     }}
                   >
                     {"DOLBY · AUTO-REVERSE"}
-                  </span>{" "}
-                </div>{" "}
-              </div>{" "}
-            </div>{" "}
-            {/* lista de canciones del casete */}{" "}
-            <div
-              style={{ position: "relative", marginTop: "26px", paddingTop: "22px", borderTop: "1px dashed #4b3a78" }}
-            >
-              {" "}
-              <h3
-                style={{
-                  margin: "0 0 6px",
-                  fontFamily: "'Londrina Solid', sans-serif",
-                  fontWeight: "900",
-                  fontSize: "32px",
-                  lineHeight: "1.1",
-                }}
-              >
-                {v.dcur.role}
-                {" · "}
-                {v.dcur.company}
-              </h3>{" "}
-              <p style={{ margin: "0 0 16px", fontSize: "14px", color: "#ff8ad8" }}>{v.dcur.stack}</p>{" "}
-              <ol style={{ margin: "0", padding: "0", listStyle: "none", display: "grid", gap: "10px" }}>
-                {" "}
-                {v.dlist.map((b, _i) => (
-                  <Fragment key={_i}>
-                    {" "}
-                    <li
+                  </span>
+                </div>
+              </div>
+            </div>
+            {/* lista de canciones del casete (apiladas: el alto es el del casete más largo) */}
+            <div style={{ position: "relative", marginTop: "26px", paddingTop: "22px", borderTop: "1px dashed #4b3a78" }}>
+              <div className="xp-stack" aria-live="polite">
+                {JOBS.map((j, k) => (
+                  <div key={k} className={k === di ? "xp-fade" : "xp-ghost"} aria-hidden={k !== di}>
+                    <h3
                       style={{
-                        display: "grid",
-                        gridTemplateColumns: "56px 1fr",
-                        gap: "12px",
-                        alignItems: "baseline",
-                        fontSize: "16px",
-                        lineHeight: "1.6",
-                        color: "#e6d9fb",
+                        margin: "0 0 6px",
+                        fontFamily: "'Londrina Solid', sans-serif",
+                        fontWeight: "900",
+                        fontSize: "32px",
+                        lineHeight: "1.1",
                       }}
                     >
-                      <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "9px", color: "#3ff0ff" }}>
-                        {b.n}
-                      </span>
-                      <span>{b.t}</span>
-                    </li>{" "}
-                  </Fragment>
-                ))}{" "}
-              </ol>{" "}
-            </div>{" "}
-          </div>{" "}
-          {/* estante */}{" "}
-          <p
-            style={{
-              margin: "56px 0 18px",
-              fontFamily: "'Press Start 2P', monospace",
-              fontSize: "10px",
-              letterSpacing: "2px",
-              color: "#fff27a",
-            }}
-          >
-            {"ESTANTE · 4 CASETES"}
-          </p>{" "}
+                      {j.role}
+                      {" · "}
+                      {j.company}
+                    </h3>
+                    <p style={{ margin: "0 0 16px", fontSize: "14px", color: "#ff8ad8" }}>{j.stack}</p>
+                    <ol style={{ margin: "0", padding: "0", listStyle: "none", display: "grid", gap: "10px" }}>
+                      {j.bullets.map((t, b) => (
+                        <li
+                          key={b}
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "56px 1fr",
+                            gap: "12px",
+                            alignItems: "baseline",
+                            fontSize: "16px",
+                            lineHeight: "1.6",
+                            color: "#e6d9fb",
+                          }}
+                        >
+                          <span style={{ fontFamily: PX, fontSize: "9px", color: "#3ff0ff" }}>{"A" + (b + 1)}</span>
+                          <span>{t}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* estante */}
+          <p style={{ margin: "56px 0 18px", fontFamily: PX, fontSize: "10px", letterSpacing: "2px", color: "#fff27a" }}>
+            {"ESTANTE · " + n + " CASETES"}
+          </p>
           <div className="xp-shelf">
-            {" "}
-            {v.dsel0 && (
-              <>
-                <button type="button" className="xp-tapebtn xp-on" onClick={v.dpick0} aria-pressed="true">
-                  <img src="/assets/cassette-upnify.webp" alt="" />
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "10px", color: "#ff2fb3" }}>
-                    {"2024 · UPNIFY"}
-                  </span>
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "8px", color: "#fff27a" }}>
-                    {"▶ EN EL DECK"}
-                  </span>
-                </button>
-              </>
-            )}{" "}
-            {v.didle0 && (
-              <>
-                <button type="button" className="xp-tapebtn" onClick={v.dpick0} aria-pressed="false">
-                  <img src="/assets/cassette-upnify.webp" alt="" />
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "10px", color: "#ff2fb3" }}>
-                    {"2024 · UPNIFY"}
-                  </span>
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "8px", color: "#8f80b8" }}>
-                    {"CARGAR"}
-                  </span>
-                </button>
-              </>
-            )}{" "}
-            {v.dsel1 && (
-              <>
-                <button type="button" className="xp-tapebtn xp-on" onClick={v.dpick1} aria-pressed="true">
-                  <img src="/assets/cassette-upqroo.webp" alt="" />
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "10px", color: "#3ff0ff" }}>
-                    {"2023 · UPQROO"}
-                  </span>
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "8px", color: "#fff27a" }}>
-                    {"▶ EN EL DECK"}
-                  </span>
-                </button>
-              </>
-            )}{" "}
-            {v.didle1 && (
-              <>
-                <button type="button" className="xp-tapebtn" onClick={v.dpick1} aria-pressed="false">
-                  <img src="/assets/cassette-upqroo.webp" alt="" />
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "10px", color: "#3ff0ff" }}>
-                    {"2023 · UPQROO"}
-                  </span>
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "8px", color: "#8f80b8" }}>
-                    {"CARGAR"}
-                  </span>
-                </button>
-              </>
-            )}{" "}
-            {v.dsel2 && (
-              <>
-                <button type="button" className="xp-tapebtn xp-on" onClick={v.dpick2} aria-pressed="true">
-                  <img src="/assets/cassette-hiplot.webp" alt="" />
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "10px", color: "#fff27a" }}>
-                    {"2021 · HIPLOT"}
-                  </span>
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "8px", color: "#fff27a" }}>
-                    {"▶ EN EL DECK"}
-                  </span>
-                </button>
-              </>
-            )}{" "}
-            {v.didle2 && (
-              <>
-                <button type="button" className="xp-tapebtn" onClick={v.dpick2} aria-pressed="false">
-                  <img src="/assets/cassette-hiplot.webp" alt="" />
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "10px", color: "#fff27a" }}>
-                    {"2021 · HIPLOT"}
-                  </span>
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "8px", color: "#8f80b8" }}>
-                    {"CARGAR"}
-                  </span>
-                </button>
-              </>
-            )}{" "}
-            {v.dsel3 && (
-              <>
-                <button type="button" className="xp-tapebtn xp-on" onClick={v.dpick3} aria-pressed="true">
-                  <img src="/assets/cassette-freelance.webp" alt="" />
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "10px", color: "#b26bff" }}>
-                    {"2020 · FREELANCE"}
-                  </span>
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "8px", color: "#fff27a" }}>
-                    {"▶ EN EL DECK"}
-                  </span>
-                </button>
-              </>
-            )}{" "}
-            {v.didle3 && (
-              <>
-                <button type="button" className="xp-tapebtn" onClick={v.dpick3} aria-pressed="false">
-                  <img src="/assets/cassette-freelance.webp" alt="" />
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "10px", color: "#b26bff" }}>
-                    {"2020 · FREELANCE"}
-                  </span>
-                  <span style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "8px", color: "#8f80b8" }}>
-                    {"CARGAR"}
-                  </span>
-                </button>
-              </>
-            )}{" "}
-          </div>{" "}
+            {JOBS.map((j, k) => (
+              <button
+                key={k}
+                type="button"
+                className={"xp-tapebtn" + (k === di ? " xp-on" : "")}
+                onClick={() => pick(k)}
+                aria-pressed={k === di}
+              >
+                <img src={j.img} alt="" width="520" height="363" loading="lazy" />
+                <span style={{ fontFamily: PX, fontSize: "10px", color: j.labelColor }}>{j.label}</span>
+                <span style={{ fontFamily: PX, fontSize: "8px", color: k === di ? "#fff27a" : "#8f80b8" }}>
+                  {k === di ? "▶ EN EL DECK" : "CARGAR"}
+                </span>
+              </button>
+            ))}
+          </div>
         </div>{" "}
         {/* ciudad lejana al atardecer (ilustración en capas) + grid */}{" "}
         <div

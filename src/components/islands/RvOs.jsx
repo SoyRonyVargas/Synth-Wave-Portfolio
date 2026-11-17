@@ -90,7 +90,7 @@ export default function RvOs() {
             </p>{" "}
           </div>{" "}
         </div>{" "}
-        <div style={{ position: "relative", zIndex: "1", maxWidth: "1280px", height: "780px", margin: "0 auto" }}>
+        <div className="v5-stage" style={{ position: "relative", zIndex: "1", maxWidth: "1280px", height: "780px", margin: "0 auto" }}>
           {" "}
           <div
             aria-hidden="true"
@@ -537,8 +537,8 @@ export default function RvOs() {
               filter: "drop-shadow(0 0 18px rgba(255,47,179,.45)) drop-shadow(0 18px 20px rgba(0,0,0,.5))",
             }}
           />{" "}
-          <div style={{ position: "absolute", zIndex: "4", left: "50%", bottom: "80px", translate: "-50% 0" }}>
-            <div className="v5-pc " style={{ width: "860px", maxWidth: "100%" }}>
+          <div className="v5-pcwrap" style={{ position: "absolute", zIndex: "4", left: "50%", bottom: "80px", translate: "-50% 0", width: "min(860px, 100%)" }}>
+            <div className="v5-pc" style={{ width: "860px", maxWidth: "100%" }}>
               {" "}
               <img src="/assets/computer.webp" alt="Computadora retro con el sistema RV-OS en pantalla" />{" "}
               <div className="v5-scr">
