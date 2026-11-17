@@ -1,102 +1,25 @@
 ---
 import site from '../../data/site.json';
 import DeLorean3D from '../islands/DeLorean3D.jsx';
-import HeroScene3D from '../islands/HeroScene3D.jsx';
-import HeroGsap from './hero/HeroGsap.astro';
-import HeroCanvas from './hero/HeroCanvas.astro';
-import HeroCity3D from '../islands/HeroCity3D.jsx';
-import HeroCityGsap from './hero/HeroCityGsap.astro';
-import HeroCityCanvas from './hero/HeroCityCanvas.astro';
 import HeroPurple3D from '../islands/HeroPurple3D.jsx';
-import HeroPurpleGsap from './hero/HeroPurpleGsap.astro';
-import HeroPurpleCanvas from './hero/HeroPurpleCanvas.astro';
-// variant: 'css' · 'r3f' (Three.js, la portada) · 'gsap' · 'canvas' → /home1-3
-//          'city-r3f' · 'city-gsap' · 'city-canvas' (camino con palmeras hacia la ciudad) → /home4-6
-const { variant = 'css' } = Astro.props;
-//          'purple-r3f' · 'purple-gsap' · 'purple-canvas' (sol amarillo, montañas y palmeras moradas) → /home7-9
-const city = variant.startsWith('city');
-const purple = variant.startsWith('purple');
-const SKY = purple
-  ? 'linear-gradient(to bottom, #12043a 0px, #2a0a6b 200px, #5a1aa8 360px, #a03ad0 470px, #ff7ad8 520px, #1a0838 520px)'
-  : city
-  ? 'linear-gradient(to bottom, #000 0px, #07021a 170px, #22083d 320px, #5c0c58 420px, #c4177a 490px, #ff4f9a 520px, #0b0420 520px)'
-  : 'linear-gradient(to bottom, #0b0420 0px, #1d0a45 250px, #4a0f6b 400px, #b0186e 520px, #12021f 520px)';
-const SPRITE = "<div class=\"rw-car-sprite\" role=\"img\" aria-label=\"DeLorean visto desde atr\u00e1s conduciendo hacia el sol\" style=\"width: 360px; height: 233px\"></div>";
+// Hero: escena 3D (sol amarillo, montañas y palmeras moradas) con póster del frame 0 mientras carga.
+const SKY = 'linear-gradient(to bottom, #12043a 0px, #2a0a6b 200px, #5a1aa8 360px, #a03ad0 470px, #ff7ad8 520px, #1a0838 520px)';
+const SPRITE = "<div class=\"rw-car-sprite\" role=\"img\" aria-label=\"DeLorean visto desde atrás conduciendo hacia el sol\" style=\"width: 360px; height: 233px\"></div>";
 ---
 <!-- ESCENA 1: HERO -->
-  <section id="inicio" class={`rw-hero rw-hero--${variant}`} data-variant={variant} style={`position: relative; height: 900px; overflow: hidden; background: ${SKY}`}>
+  <section id="inicio" class="rw-hero rw-hero--purple-r3f" data-variant="purple-r3f" style={`position: relative; height: 900px; overflow: hidden; background: ${SKY}`}>
     <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; height: 520px; overflow: hidden">
-      <div class="rw-par" data-depth="6" style="position: absolute; inset: 0">
-        <div class="rw-stars" style="position: absolute; inset: 0"></div>
-        <div class="rw-stars rw-stars-2" style="position: absolute; inset: 0"></div>
-        {purple && <div class="rw-stars-static rw-stars-dense" style="position: absolute; inset: 0"></div>}
-      </div>
+      <div class="rw-stars" style="position: absolute; inset: 0"></div>
+      <div class="rw-stars rw-stars-2" style="position: absolute; inset: 0"></div>
+      <div class="rw-stars-static rw-stars-dense" style="position: absolute; inset: 0"></div>
     </div>
 
-    <!-- r3f: primer frame de la escena 3D; se ve desde el primer pintado y la escena arranca justo aquí (sin saltos) -->
-    {variant === 'city-r3f' && (
-      <img class="rw-hero-poster" src="/assets/hero-city-poster.webp" alt="" aria-hidden="true" width="1440" height="900" fetchpriority="high" decoding="async">
-    )}
-    {variant === 'city-canvas' && (
-      <img class="rw-hero-poster" src="/assets/hero-city2d-poster.webp" alt="" aria-hidden="true" width="1440" height="900" fetchpriority="high" decoding="async">
-    )}
-    {variant === 'r3f' && (
-      <img class="rw-hero-poster" src="/assets/hero-poster.webp" alt="" aria-hidden="true" width="1440" height="900" fetchpriority="high" decoding="async">
-    )}
-    {variant === 'purple-r3f' && (
-      <picture>
-        <source media="(max-width: 767px)" srcset="/assets/hero-purple-poster-m.webp" width="640" height="1477">
-        <img class="rw-hero-poster" src="/assets/hero-purple-poster.webp" alt="" aria-hidden="true" width="1440" height="900" fetchpriority="high" decoding="async">
-      </picture>
-    )}
-    {variant !== 'r3f' && !city && !purple && (
-    <div class="rw-hero-bg" aria-hidden="true">
-    <!-- sol: franjas que bajan + halo que respira (el halo es una capa aparte, sin filtros) -->
-    <div class="rw-par" data-depth="10" aria-hidden="true" style="position: absolute; left: 50%; top: 236px; width: 300px; height: 300px; margin-left: -150px">
-      <div class="rw-sun-halo"></div>
-      <div style="position: absolute; left: 0; top: 0; width: 300px; height: 282px; overflow: hidden">
-        <div class="rw-hsun-run" style="width: 300px; height: 300px; border-radius: 50%; background: linear-gradient(to bottom, #ffd23f 0%, #ffa23a 40%, #ff5a8a 70%, #ff2fd0 100%)"></div>
-      </div>
-    </div>
-
-    <!-- piso: las líneas horizontales van en su propia capa; se anima con transform en la GPU -->
-    <div class="rw-floor-run" aria-hidden="true">
-      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice" style="position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 0 6px #ff2fd0)">
-        <g stroke="#ff3fd8" stroke-width="2.5">
-          <line x1="-300" y1="968" x2="1740" y2="968" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="878.4" x2="1740" y2="878.4" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="806.7" x2="1740" y2="806.7" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="749.4" x2="1740" y2="749.4" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="703.5" x2="1740" y2="703.5" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="666.8" x2="1740" y2="666.8" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="637.4" x2="1740" y2="637.4" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="614" x2="1740" y2="614" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="595.2" x2="1740" y2="595.2" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="580.1" x2="1740" y2="580.1" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="568.1" x2="1740" y2="568.1" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="558.5" x2="1740" y2="558.5" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="550.8" x2="1740" y2="550.8" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="544.6" x2="1740" y2="544.6" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="539.7" x2="1740" y2="539.7" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="535.8" x2="1740" y2="535.8" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="532.6" x2="1740" y2="532.6" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="530.1" x2="1740" y2="530.1" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="528.1" x2="1740" y2="528.1" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="526.5" x2="1740" y2="526.5" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="525.2" x2="1740" y2="525.2" vector-effect="non-scaling-stroke"></line><line x1="-300" y1="524.1" x2="1740" y2="524.1" vector-effect="non-scaling-stroke"></line>
-        </g>
-      </svg>
-    </div>
-    <svg aria-hidden="true" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice" style="position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 0 6px #ff2fd0)">
-      <g stroke="#ff3fd8" stroke-width="2.5" vector-effect="non-scaling-stroke">
-        <line x1="720" y1="520" x2="74" y2="900"></line><line x1="720" y1="520" x2="203" y2="900"></line><line x1="720" y1="520" x2="332" y2="900"></line><line x1="720" y1="520" x2="462" y2="900"></line><line x1="720" y1="520" x2="591" y2="900"></line><line x1="720" y1="520" x2="720" y2="900"></line><line x1="720" y1="520" x2="849" y2="900"></line><line x1="720" y1="520" x2="978" y2="900"></line><line x1="720" y1="520" x2="1108" y2="900"></line><line x1="720" y1="520" x2="1237" y2="900"></line><line x1="720" y1="520" x2="1366" y2="900"></line>
-      </g>
-      <line x1="-300" y1="520" x2="1740" y2="520" stroke="#ff9ff0" stroke-width="2"></line>
-    </svg>
-
-    <!-- montañas: avanzan despacio hacia la cámara y siguen al mouse -->
-    <div class="rw-par" data-depth="18" aria-hidden="true" style="position: absolute; inset: 0">
-      <div class="rw-mt-run" data-mt>
-        <img src="/assets/mountains.svg" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 0 4px #2f8bff) drop-shadow(0 0 10px rgba(47,139,255,.5))">
-      </div>
-      {variant === 'gsap' && (
-        <div class="rw-mt-run" data-mt>
-          <img src="/assets/mountains.svg" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 0 4px #2f8bff) drop-shadow(0 0 10px rgba(47,139,255,.5))">
-        </div>
-      )}
-    </div>
-    </div>
-    )}
-
-    {variant === 'r3f' && <HeroScene3D client:only="react" />}
-    {variant === 'canvas' && <HeroCanvas />}
-    {variant === 'gsap' && <HeroGsap />}
-    {variant === 'city-r3f' && <HeroCity3D client:only="react" />}
-    {variant === 'city-gsap' && <HeroCityGsap />}
-    {variant === 'city-canvas' && <HeroCityCanvas />}
-    {variant === 'purple-r3f' && <HeroPurple3D client:only="react" />}
-    {variant === 'purple-gsap' && <HeroPurpleGsap />}
-    {variant === 'purple-canvas' && <HeroPurpleCanvas />}
+    <!-- póster: primer frame de la escena 3D; se ve desde el primer pintado y la escena arranca justo aquí -->
+    <picture>
+      <source media="(max-width: 767px)" srcset="/assets/hero-purple-poster-m.webp" width="640" height="1477">
+      <img class="rw-hero-poster" src="/assets/hero-purple-poster.webp" alt="" aria-hidden="true" width="1440" height="900" fetchpriority="high" decoding="async">
+    </picture>
+    <HeroPurple3D client:only="react" />
 
     <!-- título estilo "Synthwave Nation" -->
     <div class="rw-logo-box" style="position: absolute; z-index: 5; left: 0; right: 0; top: 92px; height: 400px; display: flex; align-items: center; justify-content: center; perspective: 600px">
@@ -136,21 +59,14 @@ const SPRITE = "<div class=\"rw-car-sprite\" role=\"img\" aria-label=\"DeLorean 
     
   </section>
 <script>
-  // Inclinación del logo + paralaje (estrellas, sol, montañas) al mover el mouse.
-  // Se calcula una vez por frame y solo se cambian transforms, que corren en la GPU.
+  // Inclinación del logo al mover el mouse (solo transforms, corre en la GPU).
   const hero = document.getElementById('inicio');
-  const card = hero?.querySelector('[data-tilt]');
-  // en la variante GSAP el paralaje lo maneja GSAP; en r3f y canvas lo maneja su propia escena
-  const layers = hero && hero.dataset.variant === 'css' ? [...hero.querySelectorAll('.rw-par')] : [];
+  const card = hero?.querySelector<HTMLElement>('[data-tilt]');
   if (hero && card && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
     let mx = 0, my = 0, raf = 0;
     const apply = () => {
       raf = 0;
       card.style.transform = `rotateX(${Math.round(-my * 10)}deg) rotateY(${Math.round(mx * 12)}deg)`;
-      for (const el of layers) {
-        const d = +el.dataset.depth;
-        el.style.transform = `translate3d(${(-mx * d).toFixed(1)}px, ${(-my * d * 0.4).toFixed(1)}px, 0)`;
-      }
     };
     const queue = () => { if (!raf) raf = requestAnimationFrame(apply); };
     hero.addEventListener('mousemove', (e) => {
